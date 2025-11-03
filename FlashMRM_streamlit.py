@@ -614,7 +614,10 @@ if st.session_state.calculation_complete:
         )
         
         # 显示计算统计
-        success_count = len(result_df[result_df['chemical'].notna() & (result_df['chemical'] not in ['not found', 'calculation failed', 'error', 'global error'])])
+        success_count = len(result_df[
+            (result_df['chemical'].notna()) &  # 注意括号
+            (result_df['other_condition'] == True)  # 其他条件也要用括号
+        ])
         st.success(f"计算完成 ✅ | 成功处理: {success_count}个 | 总处理: {len(result_df)}个")
     else:
         st.warning("未生成任何结果，请检查输入数据或参数配置！")
@@ -623,3 +626,4 @@ if st.session_state.calculation_complete:
 st.sidebar.markdown("---")
 st.sidebar.markdown("**FlashMRM** - 质谱MRM参数优化工具")
 st.sidebar.markdown(f"当前时间: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+
