@@ -383,7 +383,7 @@ col_title, col_help = st.columns([3, 1])
 with col_title:
     st.markdown('<div class="main-header">FlashMRM</div>', unsafe_allow_html=True)
 with col_help:
-    if st.button("Help", use_container_width=True, key="help_btn"):
+    if st.button("Help", width='stretch', key="help_btn"):  # 修复use_container_width为width='stretch'
         st.session_state.show_help = not st.session_state.get('show_help', False)
 
 # 显示帮助信息
@@ -484,7 +484,7 @@ with st.container():
     with col3:
         upload_clicked = st.button(
             "Upload", 
-            use_container_width=True,
+            width='stretch',  # 修复use_container_width为width='stretch'
             key="upload_button",
             disabled=st.session_state.calculation_in_progress
         )
@@ -558,7 +558,7 @@ if st.session_state.uploaded_data:
             st.write(f"原始记录数: {ud.get('original_count', 0)}")
             st.write(f"有效InChIKey数: {ud['record_count']}")
             st.write("有效InChIKey预览:")
-            st.dataframe(ud['data'].head(10), use_container_width=True)
+            st.dataframe(ud['data'].head(10), use_container_width=False)  # 非必要宽度，用默认content
             if len(ud['data']) > 10:
                 st.write(f"... 共{len(ud['data'])}条有效记录")
 
@@ -568,7 +568,7 @@ col_calc, col_prog = st.columns([1, 3])
 with col_calc:
     calculate_clicked = st.button(
         "Calculate", 
-        use_container_width=True, 
+        width='stretch',  # 修复use_container_width为width='stretch'
         type="primary", 
         key="calculate_main",
         disabled=st.session_state.calculation_in_progress or st.session_state.uploaded_data is None
@@ -596,28 +596,31 @@ if st.session_state.calculation_complete:
     if not result_df.empty:
         # 显示结果表格（隐藏过长的best5_combinations列，默认不显示）
         display_columns = [col for col in result_df.columns if col != 'best5_combinations']
-        st.dataframe(result_df[display_columns], use_container_width=True)
+        st.dataframe(result_df[display_columns], use_container_width=False)  # 非必要宽度，用默认content
         
         # 显示完整结果（展开面板）
         with st.expander("查看完整结果（含最佳5组离子对）", expanded=False):
-            st.dataframe(result_df, use_container_width=True)
+            st.dataframe(result_df, use_container_width=False)
         
-        # 下载结果
+        # 下载结果：修复use_container_width为width='stretch'
         csv_data = result_df.to_csv(index=False, encoding='utf-8').encode('utf-8')
         st.download_button(
             label="📥 下载结果 CSV",
             data=csv_data,
             file_name=f"FlashMRM_results_{time.strftime('%Y%m%d%H%M%S')}.csv",
             mime="text/csv",
-            use_container_width=True,
+            width='stretch',
             key="download_result"
         )
         
-        # 显示计算统计
-        success_count = len(result_df[
-            (result_df['chemical'].notna()) &  # 注意括号
-            (result_df['other_condition'] == True)  # 其他条件也要用括号
-        ])
+        # 计算统计：删除不存在的'other_condition'列，仅基于chemical列有效值判断
+        # 成功的条件：chemical不为空且不是错误/未找到标记
+        success_conditions = (
+            result_df['chemical'].notna() & 
+            ~result_df['chemical'].isin(['not found', 'calculation failed', 'error', 'global error'])
+        )
+        success_count = success_conditions.sum()  # 用sum()统计True的数量，避免len()的歧义
+        
         st.success(f"计算完成 ✅ | 成功处理: {success_count}个 | 总处理: {len(result_df)}个")
     else:
         st.warning("未生成任何结果，请检查输入数据或参数配置！")
@@ -626,4 +629,3 @@ if st.session_state.calculation_complete:
 st.sidebar.markdown("---")
 st.sidebar.markdown("**FlashMRM** - 质谱MRM参数优化工具")
 st.sidebar.markdown(f"当前时间: {time.strftime('%Y-%m-%d %H:%M:%S')}")
-
