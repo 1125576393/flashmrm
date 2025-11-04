@@ -7,7 +7,7 @@ import os
 # 页面配置
 st.set_page_config(
     page_title="FlashMRM",
-    page_icon="🧪",
+    page_icon="786a50646609813e89cc2017082525a3.png",
     layout="wide"
 )
 
@@ -629,3 +629,4 @@ if st.session_state.calculation_complete:
 st.sidebar.markdown("---")
 st.sidebar.markdown("**FlashMRM** - 质谱MRM参数优化工具")
 st.sidebar.markdown(f"当前时间: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+
