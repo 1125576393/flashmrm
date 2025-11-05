@@ -585,13 +585,13 @@ if st.session_state.progress_value != progress_bar.value:
 # 运行计算逻辑
 if calculate_clicked:
     if st.session_state.uploaded_data is None:
-        st.error("请先使用「Upload」按钮上传并验证数据！")
+        st.error("Please first use the ‘Upload’ button to upload and verify the data！")
     else:
         run_flashmrm_calculation()
 
 # 显示计算结果
 if st.session_state.calculation_complete:
-    st.markdown('<div class="section-header">计算结果</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-header">Calculation results</div>', unsafe_allow_html=True)
     result_df = st.session_state.result_df
     
     if not result_df.empty:
@@ -630,6 +630,7 @@ if st.session_state.calculation_complete:
 st.sidebar.markdown("---")
 st.sidebar.markdown("**FlashMRM** - 质谱MRM参数优化工具")
 st.sidebar.markdown(f"当前时间: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+
 
 
 
