@@ -547,21 +547,21 @@ if st.session_state.upload_status:
 
 # 显示已上传的数据信息（展开面板）
 if st.session_state.uploaded_data:
-    with st.expander("已上传数据信息", expanded=False):
+    with st.expander("Data information has been uploaded", expanded=False):
         ud = st.session_state.uploaded_data
-        st.write(f"数据类型: {'单个InChIKey' if ud['type'] == 'single_inchikey' else '批量文件'}")
-        st.write(f"上传时间: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(ud['timestamp']))}")
+        st.write(f"Data type: {'Single InChIKey' if ud['type'] == 'single_inchikey' else 'Batch file'}")
+        st.write(f"Upload time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(ud['timestamp']))}")
         
         if ud["type"] == "single_inchikey":
             st.write(f"InChIKey: {ud['data']}")
         else:
-            st.write(f"文件名: {ud['filename']}")
-            st.write(f"原始记录数: {ud.get('original_count', 0)}")
-            st.write(f"有效InChIKey数: {ud['record_count']}")
-            st.write("有效InChIKey预览:")
+            st.write(f"filename: {ud['filename']}")
+            st.write(f"Number of original records: {ud.get('original_count', 0)}")
+            st.write(f"Valid InChIKey count: {ud['record_count']}")
+            st.write("Valid InChIKey Preview:")
             st.dataframe(ud['data'].head(10), use_container_width=False)  # 非必要宽度，用默认content
             if len(ud['data']) > 10:
-                st.write(f"... 共{len(ud['data'])}条有效记录")
+                st.write(f"... totle{len(ud['data'])}valid records")
 
 # 计算区域：按钮 + 进度条
 st.markdown('<div class="section-header">Calculate</div>', unsafe_allow_html=True)
@@ -630,6 +630,7 @@ if st.session_state.calculation_complete:
 st.sidebar.markdown("---")
 st.sidebar.markdown("**FlashMRM** - 质谱MRM参数优化工具")
 st.sidebar.markdown(f"当前时间: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+
 
 
 
