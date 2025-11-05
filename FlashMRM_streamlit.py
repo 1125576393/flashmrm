@@ -379,7 +379,7 @@ def run_flashmrm_calculation():
 
 
 # 主标题和Help按钮
-col_title, col_help,col_helpo = st.columns([2, 1,4])
+col_title, col_help,col_helpo = st.columns([2, 1,3])
 with col_title:
    st.image("786a50646609813e89cc2017082525a3.png", width=200)
 with col_help:
@@ -640,6 +640,7 @@ if st.session_state.calculation_complete:
 st.sidebar.markdown("---")
 st.sidebar.markdown("**FlashMRM** - 质谱MRM参数优化工具")
 st.sidebar.markdown(f"当前时间: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+
 
 
 
