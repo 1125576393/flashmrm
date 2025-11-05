@@ -390,19 +390,19 @@ with col_help:
 # 显示帮助信息
 if st.session_state.get('show_help', False):
     st.info("""
-    **使用说明:**
-    1. 选择输入模式: 
-       - 单个InChIKey：直接输入标准格式的InChIKey（如KXRPCFINVWWFHQ-UHFFFAOYSA-N）
-       - 批量模式：上传CSV（含"InChIKey"列）或TXT（每行一个InChIKey）文件
-    2. 点击「Upload」按钮验证并上传数据
-    3. 参数设置（可选）:
-       - M/z tolerance：质荷比容差（默认0.7）
-       - RT tolerance：保留时间容差（默认2.0分钟）
-       - RT offset：保留时间偏移量（默认0.0）
-       - Specificity weight：特异性权重（默认0.2）
-       - Select INTF data：选择干扰数据库（Default=NIST，QE=QE格式）
-    4. 点击「Calculate」开始计算，进度条显示处理进度
-    5. 计算完成后可查看结果表格并下载CSV文件
+    **Instruction for Use:**
+    1. Select input mode: 
+       - Single InChIKey：Directly enter a standard format InChIKey（e.g.,KXRPCFINVWWFHQ-UHFFFAOYSA-N）.
+       - Batch mode：Upload a CSV file（contaning an "InChIKey" coloum）or a TXT file（one InChIKey per line）.
+    2. click the「Upload」button to validate and upload data.
+    3. parameter setting（optional）:
+       - M/z tolerance：Mass-to-charge ratio tolerance（default 0.7）;
+       - RT tolerance：Retention time tolerance（default 2.0 minutes）;
+       - RT offset：Retention time offset（default 0.0）;
+       - Specificity weight：Specificity weight（default 0.2）;
+       - Select INTF data：Choose interference database（Default=NIST，QE=QE format）;
+    4. click「Calculate」to initiate processing;progress bar displays completion status.
+    5. Upon completion,view results table and download CSV file.
     """)
 
 # 输入模式选择
@@ -630,6 +630,7 @@ if st.session_state.calculation_complete:
 st.sidebar.markdown("---")
 st.sidebar.markdown("**FlashMRM** - 质谱MRM参数优化工具")
 st.sidebar.markdown(f"当前时间: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+
 
 
 
