@@ -391,7 +391,7 @@ with col_help:
 if st.session_state.get('show_help', False):
     st.info("""
     **Instruction for Use:**
-    1. Select input mode: 
+    1. Select Input mode: 
        - Single InChIKey：Directly enter a standard format InChIKey（e.g.,KXRPCFINVWWFHQ-UHFFFAOYSA-N）.
        - Batch mode：Upload a CSV file（contaning an "InChIKey" coloum）or a TXT file（one InChIKey per line）.
     2. click the「Upload」button to validate and upload data.
@@ -406,11 +406,11 @@ if st.session_state.get('show_help', False):
     """)
 
 # 输入模式选择
-st.markdown('<div class="section-header">输入模式</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-header">Select Input mode</div>', unsafe_allow_html=True)
 col_a, col_b = st.columns([1, 2])
 with col_a:
     selected_mode = st.radio(
-        "选择输入模式:",
+        "Select Input mode:",
         ["Input InChIKey", "Batch mode"],
         index=0 if st.session_state.input_mode == "Input InChIKey" else 1,
         key="mode_selector",
@@ -443,7 +443,7 @@ with col_b:
         st.text_input(
             "Input InChIKey:",
             value="",
-            placeholder="批量模式下禁用单个输入",
+            placeholder="Disable individual input in batch mode",
             label_visibility="collapsed",
             key="inchikey_input_disabled",
             disabled=True
@@ -468,7 +468,7 @@ if selected_mode != st.session_state.input_mode:
     st.rerun()
 
 # 参数设置部分
-st.markdown('<div class="section-header">参数设置</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-header">Parameter setting</div>', unsafe_allow_html=True)
 with st.container():
     # 第一行参数：数据库选择 + 上传按钮
     col1, col2, col3 = st.columns([2, 2, 1])
@@ -478,7 +478,7 @@ with st.container():
             ["Default", "QE"],
             index=0,
             key="intf_data",
-            help="Default: 使用NIST格式干扰数据库；QE: 使用QE格式干扰数据库"
+            help="Default: Using NIST Format Interference Database；QE: Using QE format to interference with the database"
         )
     with col2:
         st.write("")  # 占位对齐
@@ -499,7 +499,7 @@ with st.container():
             max_value=10.0,
             value=0.7,
             step=0.1,
-            help="质荷比匹配容差，默认0.7",
+            help="Mass-to-charge ratio matching tolerance, default 0.7",
             key="mz_tolerance"
         )
     with col5:
@@ -509,7 +509,7 @@ with st.container():
             max_value=10.0,
             value=0.0,
             step=0.5,
-            help="保留时间偏移量，默认0.0分钟",
+            help="Retention time offset, default 0.0 minutes",
             key="rt_offset"
         )
 
@@ -522,7 +522,7 @@ with st.container():
             max_value=10.0,
             value=2.0,
             step=0.1,
-            help="保留时间匹配容差，默认2.0分钟",
+            help="Retention time matching tolerance, default 2.0 minutes",
             key="rt_tolerance"
         )
     with col7:
@@ -532,7 +532,7 @@ with st.container():
             max_value=1.0,
             value=0.2,
             step=0.05,
-            help="特异性权重（0-1），默认0.2",
+            help="Specificity weight (0–1), default 0.2",
             key="specificity_weight"
         )
 
@@ -564,23 +564,23 @@ if st.session_state.uploaded_data:
                 st.write(f"... 共{len(ud['data'])}条有效记录")
 
 # 计算区域：按钮 + 进度条
-st.markdown('<div class="section-header">计算</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-header">Calculate</div>', unsafe_allow_html=True)
 col_calc, col_prog = st.columns([1, 3])
 with col_calc:
     calculate_clicked = st.button(
         "Calculate", 
-        width='stretch',  # 修复use_container_width为width='stretch'
+        width='stretch',  
         type="primary", 
         key="calculate_main",
         disabled=st.session_state.calculation_in_progress or st.session_state.uploaded_data is None
     )
 with col_prog:
     # 实时更新的进度条
-    progress_bar = st.progress(st.session_state.progress_value, text=f"处理进度: {st.session_state.progress_value}%")
+    progress_bar = st.progress(st.session_state.progress_value, text=f"Processing progress: {st.session_state.progress_value}%")
 
 # 若进度值变化，更新进度条文本
 if st.session_state.progress_value != progress_bar.value:
-    progress_bar.progress(st.session_state.progress_value, text=f"处理进度: {st.session_state.progress_value}%")
+    progress_bar.progress(st.session_state.progress_value, text=f"Processing progress: {st.session_state.progress_value}%")
 
 # 运行计算逻辑
 if calculate_clicked:
@@ -630,6 +630,7 @@ if st.session_state.calculation_complete:
 st.sidebar.markdown("---")
 st.sidebar.markdown("**FlashMRM** - 质谱MRM参数优化工具")
 st.sidebar.markdown(f"当前时间: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+
 
 
 
