@@ -606,7 +606,7 @@ if st.session_state.calculation_complete:
         # 下载结果：修复use_container_width为width='stretch'
         csv_data = result_df.to_csv(index=False, encoding='utf-8').encode('utf-8')
         st.download_button(
-            label="📥 下载结果 CSV",
+            label="📥 Download results CSV",
             data=csv_data,
             file_name=f"FlashMRM_results_{time.strftime('%Y%m%d%H%M%S')}.csv",
             mime="text/csv",
@@ -622,14 +622,15 @@ if st.session_state.calculation_complete:
         )
         success_count = success_conditions.sum()  # 用sum()统计True的数量，避免len()的歧义
         
-        st.success(f"计算完成 ✅ | 成功处理: {success_count}个 | 总处理: {len(result_df)}个")
+        st.success(f"Calculation complete ✅ | Successfully processed: {success_count}| Overall processing: {len(result_df)}")
     else:
-        st.warning("未生成任何结果，请检查输入数据或参数配置！")
+        st.warning("No results generated. Please check your input data or parameter configuration！")
 
 # 页脚信息
 st.sidebar.markdown("---")
 st.sidebar.markdown("**FlashMRM** - 质谱MRM参数优化工具")
 st.sidebar.markdown(f"当前时间: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+
 
 
 
