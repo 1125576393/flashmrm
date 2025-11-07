@@ -110,12 +110,12 @@ def process_uploaded_data():
             # 处理单个InChIKey
             inchikey = st.session_state.inchikey_value.strip()
             if not inchikey:
-                st.session_state.upload_status = ("error", "请输入有效的InChIKey！")
+                st.session_state.upload_status = ("error", "Please enter a valid InChIKey！")
                 return False
             
             # InChIKey格式简单验证（标准格式含2个短横线）
             if inchikey.count('-') != 2:
-                st.session_state.upload_status = ("error", "InChIKey格式无效！标准格式如：KXRPCFINVWWFHQ-UHFFFAOYSA-N")
+                st.session_state.upload_status = ("error", "InChIKey format is invalid! Standard format example: KXRPCFINVWWFHQ-UHFFFAOYSA-N")
                 return False
             
             st.session_state.uploaded_data = {
@@ -123,14 +123,14 @@ def process_uploaded_data():
                 "data": inchikey,
                 "timestamp": time.time()
             }
-            st.session_state.upload_status = ("success", f"成功上传InChIKey: {inchikey}")
+            st.session_state.upload_status = ("success", f"Successfully uploaded InChIKey: {inchikey}")
             return True
             
         else:  # Batch mode
             # 处理批量文件
             batch_file = st.session_state.batch_file
             if batch_file is None:
-                st.session_state.upload_status = ("error", "请上传文件！")
+                st.session_state.upload_status = ("error", "Please upload the file!")
                 return False
             
             # 根据文件类型处理
@@ -139,7 +139,7 @@ def process_uploaded_data():
                     df = pd.read_csv(batch_file)
                     # 验证CSV是否包含InChIKey列
                     if "InChIKey" not in df.columns:
-                        st.session_state.upload_status = ("error", "CSV文件必须包含'InChIKey'列！")
+                        st.session_state.upload_status = ("error", "The CSV file must contain an “InChIKey” column!")
                         return False
                 elif batch_file.name.endswith('.txt'):
                     # 假设txt文件每行一个InChIKey
@@ -147,16 +147,16 @@ def process_uploaded_data():
                     inchikeys = [line.strip() for line in content.split('\n') if line.strip()]
                     df = pd.DataFrame({"InChIKey": inchikeys})
                 else:
-                    st.session_state.upload_status = ("error", "不支持的文件格式！仅支持CSV和TXT")
+                    st.session_state.upload_status = ("error", "Unsupported file format! Only CSV and TXT formats are supported")
                     return False
             except Exception as e:
-                st.session_state.upload_status = ("error", f"文件解析失败: {str(e)}")
+                st.session_state.upload_status = ("error", f"File parsing failed: {str(e)}")
                 return False
             
             # 过滤无效InChIKey（格式验证）
             valid_inchikeys = [ik for ik in df["InChIKey"].dropna().unique() if ik.count('-') == 2]
             if len(valid_inchikeys) == 0:
-                st.session_state.upload_status = ("error", "文件中无有效InChIKey！")
+                st.session_state.upload_status = ("error", "No valid InChIKey found in the file！")
                 return False
             
             st.session_state.uploaded_data = {
@@ -169,12 +169,12 @@ def process_uploaded_data():
             }
             st.session_state.upload_status = (
                 "success", 
-                f"成功上传文件: {batch_file.name}，原始记录{len(df)}条，有效InChIKey{len(valid_inchikeys)}条"
+                f"File successfully uploaded: {batch_file.name}, containing {len(df)} original records and {len(valid_inchikeys)} valid InChIKeys."
             )
             return True
             
     except Exception as e:
-        st.session_state.upload_status = ("error", f"上传处理失败: {str(e)}")
+        st.session_state.upload_status = ("error", f"Upload processing failed: {str(e)}")
         return False
 
 
@@ -244,7 +244,7 @@ def run_flashmrm_calculation():
                     })
                 st.session_state.result_df = pd.DataFrame(results)
                 st.session_state.progress_value = 100
-                st.session_state.upload_status = ("error", "所有InChIKey在数据库中无匹配，请检查数据")
+                st.session_state.upload_status = ("error", "No matches found for all InChIKey entries in the database. Please verify your data.")
                 st.session_state.calculation_in_progress = False
                 st.session_state.calculation_complete = True
                 return
@@ -338,13 +338,13 @@ def run_flashmrm_calculation():
         st.session_state.progress_value = 100
         st.session_state.calculation_complete = True
         st.session_state.calculation_in_progress = False
-        st.session_state.upload_status = ("success", f"计算完成！共处理{total_compounds}个化合物")
+        st.session_state.upload_status = ("success", f"Calculation complete! A total of {total_compounds} compounds have been processed.")
     
     except Exception as e:
         # 全局异常处理
         st.session_state.calculation_in_progress = False
         st.session_state.calculation_complete = True
-        error_msg = f"计算总览错误: {str(e)}"
+        error_msg = f"Calculation Overview Error: {str(e)}"
         st.session_state.upload_status = ("error", error_msg)
         
         # 生成兜底结果（确保前端有数据显示）
@@ -422,7 +422,7 @@ with col_b:
         inchikey_input = st.text_input(
             "Input InChIKey:",
             value=st.session_state.inchikey_value,
-            placeholder="例如：KXRPCFINVWWFHQ-UHFFFAOYSA-N",
+            placeholder="For example:KXRPCFINVWWFHQ-UHFFFAOYSA-N",
             label_visibility="collapsed",
             key="inchikey_input_active"
         )
@@ -436,7 +436,7 @@ with col_b:
             label_visibility="collapsed",
             key="batch_input_disabled",
             disabled=True,
-            help="单个模式下禁用批量上传"
+            help="Disable batch uploads in single-file mode"
         )
     else:
         # 禁用的单个输入框（占位）
@@ -453,7 +453,7 @@ with col_b:
         batch_input = st.file_uploader(
             "Batch mode:",
             type=['txt', 'csv'],
-            help="拖拽文件到此处，支持CSV（含'InChIKey'列）和TXT（每行一个InChIKey），最大200MB",
+            help="Drag and drop files here. Supported formats: CSV (including an “InChIKey” column) and TXT (one InChIKey per line). ",
             label_visibility="collapsed",
             key="batch_input_active"
         )
@@ -630,6 +630,7 @@ if st.session_state.calculation_complete:
 st.sidebar.markdown("---")
 st.sidebar.markdown("**FlashMRM** - 质谱MRM参数优化工具")
 st.sidebar.markdown(f"当前时间: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+
 
 
 
