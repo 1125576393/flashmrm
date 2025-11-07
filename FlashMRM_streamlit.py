@@ -305,7 +305,21 @@ if st.session_state.get('show_help', False):
      - **Upload custom** = upload a CSV interference data file to be used instead of built-in databases  
 4. Click **Calculate** to start; a progress bar will show completion status.  
 5. When finished, view the results table and download a CSV.
+
+---
+
+📂 **Demo Data Example**  
+You can download the demo dataset used for testing here:  
+👉 [Download demo_data.csv](https://github.com/1125576393-png/flashmrmshow/blob/main/demo_data.csv)
+
+**Preview (first 2 rows):**
+
+| InChIKey | Name | PrecursorMZ | RT | Ion_mode |
+|-----------|------|-------------|----|-----------|
+| KXRPCFINVWWFHQ-UHFFFAOYSA-N | Acetaminophen | 152.07 | 2.50 | Positive |
+| NINICLYMRSJISH-UHFFFAOYSA-N | Caffeine | 195.09 | 1.80 | Positive |
 """)
+
 
 # ===============================
 # Input Mode
@@ -459,6 +473,7 @@ if st.session_state.calculation_complete:
 st.sidebar.markdown("---")
 st.sidebar.markdown("**FlashMRM** - MRM transition optimization tool")
 st.sidebar.markdown(f"Current time: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+
 
 
 
