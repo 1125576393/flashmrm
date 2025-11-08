@@ -388,6 +388,7 @@ with col_help:
         st.session_state.show_help = not st.session_state.get('show_help', False)
 
 # 显示帮助信息
+# 显示帮助信息
 if st.session_state.get('show_help', False):
     st.info("""
     **Instruction for Use**
@@ -412,14 +413,37 @@ if st.session_state.get('show_help', False):
 📂 **Demo Data Example**  
 You can download the demo dataset used for testing here:  
 👉 [Download demo_data.csv](https://github.com/1125576393-png/flashmrmshow/blob/main/demo_data.csv)
-
-**Preview (first 2 rows):**
-
-| InChIKey | Name | PrecursorMZ | RT | Ion_mode |
-|-----------|------|-------------|----|-----------|
-| KXRPCFINVWWFHQ-UHFFFAOYSA-N | Acetaminophen | 152.07 | 2.50 | Positive |
-| NINICLYMRSJISH-UHFFFAOYSA-N | Caffeine | 195.09 | 1.80 | Positive |
 """)
+
+    st.caption("**Preview (first 2 rows):**")
+
+    demo_sources = ["demo_data.csv"]
+    demo_df = None
+    error_msgs = []
+
+    for src in demo_sources:
+        try:
+            if src.startswith("http"):
+                demo_df = pd.read_csv(src)
+            else:
+                if os.path.exists(src):
+                    demo_df = pd.read_csv(src)
+            if demo_df is not None:
+                break
+        except Exception as e:
+            error_msgs.append(f"{src} -> {e}")
+
+    if demo_df is not None:
+        st.dataframe(
+            demo_df.head(2),
+            use_container_width=True,
+            hide_index=True
+        )
+    else:
+        st.warning("Failed to load demo_data.csv for preview. Please check the link or place the file locally.")
+        if error_msgs:
+            with st.expander("Debug details"):
+                st.write("\n".join(error_msgs))
 
 # 输入模式选择
 st.markdown('<div class="section-header">Select Input mode</div>', unsafe_allow_html=True)
@@ -646,6 +670,7 @@ if st.session_state.calculation_complete:
 st.sidebar.markdown("---")
 st.sidebar.markdown("**FlashMRM** - 质谱MRM参数优化工具")
 st.sidebar.markdown(f"当前时间: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+
 
 
 
