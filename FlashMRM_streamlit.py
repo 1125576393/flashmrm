@@ -519,7 +519,7 @@ if selected_mode != st.session_state.input_mode:
 # 上传按钮
 upload_clicked = st.button(
     "Upload",
-    width=True,
+    width=100,
     key="upload_button",
     disabled=st.session_state.calculation_in_progress
 )
@@ -679,6 +679,7 @@ if st.session_state.calculation_complete:
 st.sidebar.markdown("---")
 st.sidebar.markdown("**FlashMRM** - 质谱MRM参数优化工具")
 st.sidebar.markdown(f"当前时间: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+
 
 
 
