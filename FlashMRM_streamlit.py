@@ -388,7 +388,6 @@ with col_help:
         st.session_state.show_help = not st.session_state.get('show_help', False)
 
 # 显示帮助信息
-# 显示帮助信息
 if st.session_state.get('show_help', False):
     st.info("""
     **Instruction for Use**
@@ -507,11 +506,45 @@ if selected_mode != st.session_state.input_mode:
     st.session_state.upload_status = None
     st.rerun()
 
+# 上传按钮
+upload_clicked = st.button(
+    "Upload",
+    use_container_width=True,
+    key="upload_button",
+    disabled=st.session_state.calculation_in_progress
+
+    # 处理Upload按钮点击
+if upload_clicked:
+    process_uploaded_data()
+
+# 显示上传状态
+if st.session_state.upload_status:
+    status_type, message = st.session_state.upload_status
+    st.markdown(f'<div class="upload-status {status_type}">{message}</div>', unsafe_allow_html=True)
+
+# 显示已上传的数据信息（展开面板）
+if st.session_state.uploaded_data:
+    with st.expander("Data information has been uploaded", expanded=False):
+        ud = st.session_state.uploaded_data
+        st.write(f"Data type: {'Single InChIKey' if ud['type'] == 'single_inchikey' else 'Batch file'}")
+        st.write(f"Upload time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(ud['timestamp']))}")
+        
+        if ud["type"] == "single_inchikey":
+            st.write(f"InChIKey: {ud['data']}")
+        else:
+            st.write(f"filename: {ud['filename']}")
+            st.write(f"Number of original records: {ud.get('original_count', 0)}")
+            st.write(f"Valid InChIKey count: {ud['record_count']}")
+            st.write("Valid InChIKey Preview:")
+            st.dataframe(ud['data'].head(10), use_container_width=False)  # 非必要宽度，用默认content
+            if len(ud['data']) > 10:
+                st.write(f"... totle{len(ud['data'])}valid records")
+
 # 参数设置部分
 st.markdown('<div class="section-header">Parameter setting</div>', unsafe_allow_html=True)
 with st.container():
-    # 第一行参数：数据库选择 + 上传按钮
-    col1, col2, col3 = st.columns([2, 2, 1])
+    # 第一行参数：数据库选择
+    col1, col2 = st.columns([2, 2])
     with col1:
         intf_data = st.selectbox(
             "Select INTF data:",
@@ -522,13 +555,6 @@ with st.container():
         )
     with col2:
         st.write("")  # 占位对齐
-    with col3:
-        upload_clicked = st.button(
-            "Upload", 
-            width='stretch',  # 修复use_container_width为width='stretch'
-            key="upload_button",
-            disabled=st.session_state.calculation_in_progress
-        )
 
     # 第二行参数：M/z容差 + RT偏移
     col4, col5 = st.columns([1, 1])
@@ -575,33 +601,6 @@ with st.container():
             help="Specificity weight (0–1), default 0.2",
             key="specificity_weight"
         )
-
-# 处理Upload按钮点击
-if upload_clicked:
-    process_uploaded_data()
-
-# 显示上传状态
-if st.session_state.upload_status:
-    status_type, message = st.session_state.upload_status
-    st.markdown(f'<div class="upload-status {status_type}">{message}</div>', unsafe_allow_html=True)
-
-# 显示已上传的数据信息（展开面板）
-if st.session_state.uploaded_data:
-    with st.expander("Data information has been uploaded", expanded=False):
-        ud = st.session_state.uploaded_data
-        st.write(f"Data type: {'Single InChIKey' if ud['type'] == 'single_inchikey' else 'Batch file'}")
-        st.write(f"Upload time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(ud['timestamp']))}")
-        
-        if ud["type"] == "single_inchikey":
-            st.write(f"InChIKey: {ud['data']}")
-        else:
-            st.write(f"filename: {ud['filename']}")
-            st.write(f"Number of original records: {ud.get('original_count', 0)}")
-            st.write(f"Valid InChIKey count: {ud['record_count']}")
-            st.write("Valid InChIKey Preview:")
-            st.dataframe(ud['data'].head(10), use_container_width=False)  # 非必要宽度，用默认content
-            if len(ud['data']) > 10:
-                st.write(f"... totle{len(ud['data'])}valid records")
 
 # 计算区域：按钮 + 进度条
 st.markdown('<div class="section-header">Calculate</div>', unsafe_allow_html=True)
@@ -670,6 +669,7 @@ if st.session_state.calculation_complete:
 st.sidebar.markdown("---")
 st.sidebar.markdown("**FlashMRM** - 质谱MRM参数优化工具")
 st.sidebar.markdown(f"当前时间: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+
 
 
 
