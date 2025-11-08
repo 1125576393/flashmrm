@@ -149,7 +149,7 @@ def process_uploaded_data():
                     df = pd.read_csv(batch_file)
                     # 验证CSV是否包含InChIKey列
                     if "InChIKey" not in df.columns:
-                        st.session_state.upload_status = ("error", "The CSV file must contain an “InChIKey” column!")
+                        st.session_state.upload_status = ("error", "The CSV file must contain an \"InChIKey\" column!")
                         return False
                 elif batch_file.name.endswith('.txt'):
                     # 假设txt文件每行一个InChIKey
@@ -502,7 +502,7 @@ with col_b:
         batch_input = st.file_uploader(
             "Batch mode:",
             type=['txt', 'csv'],
-            help="Drag and drop files here. Supported formats: CSV (including an “InChIKey” column) and TXT (one InChIKey per line). ",
+            help="Drag and drop files here. Supported formats: CSV (including an \"InChIKey\" column) and TXT (one InChIKey per line). ",
             label_visibility="collapsed",
             key="batch_input_active"
         )
@@ -634,7 +634,7 @@ if st.session_state.progress_value != progress_bar.value:
 # 运行计算逻辑
 if calculate_clicked:
     if st.session_state.uploaded_data is None:
-        st.error("Please first use the ‘Upload’ button to upload and verify the data！")
+        st.error("Please first use the 'Upload' button to upload and verify the data！")
     else:
         run_flashmrm_calculation()
 
