@@ -512,7 +512,7 @@ upload_clicked = st.button(
     use_container_width=True,
     key="upload_button",
     disabled=st.session_state.calculation_in_progress
-
+)
     # 处理Upload按钮点击
 if upload_clicked:
     process_uploaded_data()
@@ -669,6 +669,7 @@ if st.session_state.calculation_complete:
 st.sidebar.markdown("---")
 st.sidebar.markdown("**FlashMRM** - 质谱MRM参数优化工具")
 st.sidebar.markdown(f"当前时间: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+
 
 
 
