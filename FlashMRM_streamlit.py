@@ -17,7 +17,7 @@ st.markdown("""
     .main-header {
         font-size: 24px;
         font-weight: bold;
-        margin-bottom: 20px;
+        margin-bottom: 30px;
         color: #1f77b4;
         display: flex;
         justify-content: space-between;
@@ -26,37 +26,37 @@ st.markdown("""
     .section-header {
         font-size: 18px;
         font-weight: bold;
-        margin-top: 15px;
-        margin-bottom: 10px;
+        margin-top: 30px;
+        margin-bottom: 15px;
     }
     .input-container {
         display: flex;
         align-items: center;
-        margin-bottom: 10px;
+        margin-bottom: 15px;
     }
     .input-label {
         width: 150px;
         font-weight: bold;
     }
     .result-container {
-        margin-top: 20px;
+        margin-top: 30px;
         border: 1px solid #ddd;
         padding: 10px;
         border-radius: 5px;
     }
     .calculate-button {
-        margin-top: 20px;
+        margin-top: 40px;
     }
     .param-section {
         background-color: #f9f9f9;
         padding: 15px;
         border-radius: 5px;
-        margin-bottom: 15px;
+        margin-bottom: 30px;
     }
     .upload-status {
         padding: 8px;
         border-radius: 4px;
-        margin-top: 5px;
+        margin-top: 10px;
     }
     .success {
         background-color: #d4edda;
@@ -72,10 +72,20 @@ st.markdown("""
         display: flex;
         align-items: center;
         gap: 20px;
-        margin-top: 20px;
+        margin-top: 40px;
     }
     .progress-container {
         flex-grow: 1;
+    }
+
+    /* 新增：为主要区块添加额外间距 */
+    .stRadio {
+        margin-bottom: 40px !important;  /* 输入模式选择区块 */
+    }
+    
+    /* 为文件上传区域添加底部间距 */
+    .uploadedFile {
+        margin-bottom: 40px !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -669,6 +679,7 @@ if st.session_state.calculation_complete:
 st.sidebar.markdown("---")
 st.sidebar.markdown("**FlashMRM** - 质谱MRM参数优化工具")
 st.sidebar.markdown(f"当前时间: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+
 
 
 
