@@ -206,12 +206,14 @@ def run_flashmrm_calculation():
         config.OUTPUT_PATH = "flashmrm_output.csv"
         
         # 设置干扰数据库
-        intf_data_selection = st.session_state.get("intf_data", "Default")
-        if intf_data_selection == "Default":
-            config.INTF_TQDB_PATH = 'INTF-TQDB(from NIST).csv'
+        intf_data_selection = st.session_state.get("intf_data", "NIST")
+        if intf_data_selection == "NIST":
+            # 后端代码会读取这个文件夹下的所有CSV文件
+            config.INTF_TQDB_PATH = 'INTF_TQDB_NIST'
             config.USE_NIST_METHOD = True
         else:
-            config.INTF_TQDB_PATH = 'INTF-TQDB(from QE).csv'
+            # 后端代码会读取这个文件夹下的所有CSV文件
+            config.INTF_TQDB_PATH = 'INTF_TQDB_QE'
             config.USE_NIST_METHOD = False
         
         # 2. 获取目标InChIKey列表
@@ -679,6 +681,7 @@ if st.session_state.calculation_complete:
 st.sidebar.markdown("---")
 st.sidebar.markdown("**FlashMRM** - 质谱MRM参数优化工具")
 st.sidebar.markdown(f"当前时间: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+
 
 
 
