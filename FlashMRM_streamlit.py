@@ -14,76 +14,49 @@ st.set_page_config(
 # 自定义CSS样式
 st.markdown("""
 <style>
-    /* 全局主容器的上下留白（Streamlit 默认类名，不同版本可能略有差异） */
-    .block-container {
-        padding-top: 2rem;
-        padding-bottom: 2rem;
-    }
-
-    /* 统一的“卡片式”区块容器，用于分隔不同功能区域 */
-    .section-card {
-        margin: 28px 0;                /* 区块与区块之间的间距 */
-        padding: 18px 22px;            /* 区块内部留白 */
-        background: #ffffff;           /* 背景纯白，和页面区分 */
-        border: 1px solid #e6e6e6;     /* 边框 */
-        border-radius: 12px;           /* 圆角 */
-        box-shadow: 0 2px 10px rgba(0,0,0,0.03); /* 轻微阴影 */
-    }
-    /* 相邻卡片之间再多留一点距 */
-    .section-card + .section-card {
-        margin-top: 32px;
-    }
-
-    /* 标题与卡片内部元素的默认间距 */
-    .section-header {
-        font-size: 18px;
-        font-weight: bold;
-        margin-top: 0;                 /* 交给卡片外边距控制整体间距 */
-        margin-bottom: 14px;           /* 标题与内容的距离 */
-    }
-
-    /* 你现有的样式，适当加大间距 */
     .main-header {
         font-size: 24px;
         font-weight: bold;
-        margin-bottom: 28px;           /* 顶部标题下方间距加大 */
+        margin-bottom: 20px;
         color: #1f77b4;
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
+    .section-header {
+        font-size: 18px;
+        font-weight: bold;
+        margin-top: 15px;
+        margin-bottom: 10px;
+    }
     .input-container {
         display: flex;
         align-items: center;
-        margin-bottom: 12px;
-        gap: 10px;                     /* 输入控件间距 */
+        margin-bottom: 10px;
     }
     .input-label {
         width: 150px;
         font-weight: bold;
     }
-
-    /* 参数区作为卡片内部的浅灰条带，进一步分组 */
-    .param-section {
-        background-color: #fafafa;
-        padding: 16px;
-        border-radius: 8px;
-        margin: 16px 0;                /* 与其上下元素拉开 */
-        border: 1px dashed #e5e5e5;    /* 虚线更易识别为子分组 */
-    }
-
     .result-container {
-        margin-top: 18px;
-        border: 1px solid #e6e6e6;
-        padding: 12px;
-        border-radius: 8px;
-        background: #fff;
+        margin-top: 20px;
+        border: 1px solid #ddd;
+        padding: 10px;
+        border-radius: 5px;
     }
-
+    .calculate-button {
+        margin-top: 20px;
+    }
+    .param-section {
+        background-color: #f9f9f9;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+    }
     .upload-status {
         padding: 8px;
         border-radius: 4px;
-        margin-top: 8px;
+        margin-top: 5px;
     }
     .success {
         background-color: #d4edda;
@@ -95,19 +68,15 @@ st.markdown("""
         color: #721c24;
         border: 1px solid #f5c6cb;
     }
-
-    .calculate-container {
+     .calculate-container {
         display: flex;
         align-items: center;
-        gap: 24px;                     /* 计算按钮与进度条的间距 */
+        gap: 20px;
         margin-top: 20px;
     }
     .progress-container {
         flex-grow: 1;
     }
-
-    /* 实用型：在需要处加大垂直空隙可加这个类 */
-    .spacer-lg { margin: 32px 0; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -700,6 +669,7 @@ if st.session_state.calculation_complete:
 st.sidebar.markdown("---")
 st.sidebar.markdown("**FlashMRM** - 质谱MRM参数优化工具")
 st.sidebar.markdown(f"当前时间: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+
 
 
 
