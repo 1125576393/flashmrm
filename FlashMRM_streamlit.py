@@ -646,16 +646,74 @@ if st.session_state.calculation_complete:
     result_df = st.session_state.result_df
     
     if not result_df.empty:
-        # 显示结果表格（隐藏过长的best5_combinations列，默认不显示）
-        display_columns = [col for col in result_df.columns if col != 'best5_combinations']
-        st.dataframe(result_df[display_columns], use_container_width=False)  # 非必要宽度，用默认content
+        # -------------------------- 1. 预处理：解析best5_combinations（核心步骤） --------------------------
+        import json
+        from ast import literal_eval
         
-        # 显示完整结果（展开面板）
-        with st.expander("查看完整结果（含最佳5组离子对）", expanded=False):
-            st.dataframe(result_df, use_container_width=False)
+        def parse_best5(best5_str):
+            """解析best5_combinations字符串，返回离子对列表（处理多种格式）"""
+            if pd.isna(best5_str) or best5_str in ["no matching data in database", "inchikey not found", "processing failed"]:
+                return []
+            try:
+                # 尝试解析JSON格式或Python字典字符串
+                if isinstance(best5_str, str):
+                    # 处理可能的格式差异（如单引号转双引号）
+                    best5_str = best5_str.replace("'", "\"").replace("None", "null").replace("True", "true").replace("False", "false")
+                    return json.loads(best5_str)
+                elif isinstance(best5_str, list):
+                    return best5_str
+                else:
+                    return literal_eval(str(best5_str))  # 兜底：解析Python字面量
+            except Exception as e:
+                st.warning(f"解析离子对数据失败: {str(e)}")
+                return []
         
-        # 下载结果：修复use_container_width为width='stretch'
-        csv_data = result_df.to_csv(index=False, encoding='utf-8').encode('utf-8')
+        # 为结果表添加解析后的离子对列
+        result_df["parsed_best5"] = result_df["best5_combinations"].apply(parse_best5)
+        
+        # -------------------------- 2. 显示原有简化表格（隐藏完整best5列） --------------------------
+        display_columns = [col for col in result_df.columns if col not in ['best5_combinations', 'parsed_best5']]
+        st.dataframe(result_df[display_columns], use_container_width=False, hide_index=True)
+        
+        # -------------------------- 3. 显示第一个化合物的前5组离子对（默认展开） --------------------------
+        first_compound = result_df.iloc[0]  # 获取第一个化合物数据
+        first_best5 = first_compound["parsed_best5"][:5]  # 取前5组离子对
+        
+        # 定义需要展示的离子对字段（与需求中的数据结构匹配）
+        ion_pair_columns = [
+            "MSMS1", "intensity1", "CE1", "MSMS2", "intensity2", "CE2",
+            "interference_level1", "interference_level2", "sensitivity_score",
+            "specificity_score", "score", "CE_QQQ1", "CE_QQQ2"
+        ]
+        
+        # 生成离子对详情表
+        if first_best5:
+            # 筛选有效字段，缺失字段填充为0（避免表格错位）
+            ion_pair_data = []
+            for idx, pair in enumerate(first_best5, 1):
+                row = {"离子对序号": f"第{idx}组"}
+                for col in ion_pair_columns:
+                    row[col] = pair.get(col, 0.0)  # 缺失字段填0
+                ion_pair_data.append(row)
+            ion_pair_df = pd.DataFrame(ion_pair_data)
+            
+            # 显示离子对详情（默认展开，标注所属化合物）
+            st.markdown(f"""
+                <div class="section-header" style="margin-top:20px;">
+                    第一个化合物离子对详情（前5组）：{first_compound['chemical']}
+                </div>
+            """, unsafe_allow_html=True)
+            st.dataframe(ion_pair_df, use_container_width=False, hide_index=True)
+        else:
+            # 无有效离子对时提示
+            st.info(f"第一个化合物「{first_compound['chemical']}」无可用离子对数据")
+        
+        # -------------------------- 4. 保留完整结果展开面板（可选，方便查看全部数据） --------------------------
+        with st.expander("查看所有化合物完整结果（含全部离子对）", expanded=False):
+            st.dataframe(result_df.drop(columns=["parsed_best5"]), use_container_width=False)
+        
+        # -------------------------- 5. 保留下载功能和统计信息 --------------------------
+        csv_data = result_df.drop(columns=["parsed_best5"]).to_csv(index=False, encoding='utf-8').encode('utf-8')
         st.download_button(
             label="📥 Download results CSV",
             data=csv_data,
@@ -665,15 +723,13 @@ if st.session_state.calculation_complete:
             key="download_result"
         )
         
-        # 计算统计：删除不存在的'other_condition'列，仅基于chemical列有效值判断
-        # 成功的条件：chemical不为空且不是错误/未找到标记
+        # 计算成功统计
         success_conditions = (
             result_df['chemical'].notna() & 
             ~result_df['chemical'].isin(['not found', 'calculation failed', 'error', 'global error'])
         )
-        success_count = success_conditions.sum()  # 用sum()统计True的数量，避免len()的歧义
-        
-        st.success(f"Calculation complete ✅ | Successfully processed: {success_count}| Overall processing: {len(result_df)}")
+        success_count = success_conditions.sum()
+        st.success(f"Calculation complete ✅ | Successfully processed: {success_count} | Overall processing: {len(result_df)}")
     else:
         st.warning("No results generated. Please check your input data or parameter configuration！")
 
@@ -681,6 +737,7 @@ if st.session_state.calculation_complete:
 st.sidebar.markdown("---")
 st.sidebar.markdown("**FlashMRM** - 质谱MRM参数优化工具")
 st.sidebar.markdown(f"当前时间: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+
 
 
 
