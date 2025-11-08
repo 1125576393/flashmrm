@@ -4,22 +4,20 @@ import time
 from FlashMRM import Config, MRMOptimizer
 import os
 
-# ===============================
-# Page Configuration & Styles
-# ===============================
+# 页面配置
 st.set_page_config(
     page_title="FlashMRM",
     page_icon="786a50646609813e89cc2017082525a3.png",
     layout="wide"
 )
 
-# Custom CSS
+# 自定义CSS样式
 st.markdown("""
 <style>
     .main-header {
         font-size: 24px;
         font-weight: bold;
-        margin-bottom: 25px;
+        margin-bottom: 20px;
         color: #1f77b4;
         display: flex;
         justify-content: space-between;
@@ -28,13 +26,13 @@ st.markdown("""
     .section-header {
         font-size: 18px;
         font-weight: bold;
-        margin-top: 35px;   /* Increased spacing */
-        margin-bottom: 15px;
+        margin-top: 15px;
+        margin-bottom: 10px;
     }
     .input-container {
         display: flex;
         align-items: center;
-        margin-bottom: 15px;
+        margin-bottom: 10px;
     }
     .input-label {
         width: 150px;
@@ -47,18 +45,18 @@ st.markdown("""
         border-radius: 5px;
     }
     .calculate-button {
-        margin-top: 25px;
+        margin-top: 20px;
     }
     .param-section {
         background-color: #f9f9f9;
         padding: 15px;
         border-radius: 5px;
-        margin-bottom: 25px;
+        margin-bottom: 15px;
     }
     .upload-status {
         padding: 8px;
         border-radius: 4px;
-        margin-top: 10px;
+        margin-top: 5px;
     }
     .success {
         background-color: #d4edda;
@@ -70,12 +68,19 @@ st.markdown("""
         color: #721c24;
         border: 1px solid #f5c6cb;
     }
+     .calculate-container {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-top: 20px;
+    }
+    .progress-container {
+        flex-grow: 1;
+    }
 </style>
 """, unsafe_allow_html=True)
 
-# ===============================
-# Session State Initialization
-# ===============================
+# 初始化session state
 if 'input_mode' not in st.session_state:
     st.session_state.input_mode = "Input InChIKey"
 if 'inchikey_value' not in st.session_state:
@@ -86,31 +91,33 @@ if 'uploaded_data' not in st.session_state:
     st.session_state.uploaded_data = None
 if 'upload_status' not in st.session_state:
     st.session_state.upload_status = None
-if 'custom_intf_file' not in st.session_state:
-    st.session_state.custom_intf_file = None
 if 'calculation_in_progress' not in st.session_state:
     st.session_state.calculation_in_progress = False
 if 'calculation_complete' not in st.session_state:
     st.session_state.calculation_complete = False
 if 'progress_value' not in st.session_state:
     st.session_state.progress_value = 0
-if 'result_df' not in st.session_state:
-    st.session_state.result_df = pd.DataFrame()
 if 'show_help' not in st.session_state:
     st.session_state.show_help = False
+if 'result_df' not in st.session_state:
+    st.session_state.result_df = pd.DataFrame()
 
-# ===============================
-# Upload Data Processing
-# ===============================
+
 def process_uploaded_data():
-    """Process uploaded input data"""
+    """处理上传的数据"""
     try:
         if st.session_state.input_mode == "Input InChIKey":
+            # 处理单个InChIKey
             inchikey = st.session_state.inchikey_value.strip()
-            if not inchikey or inchikey.count('-') != 2:
-                st.session_state.upload_status = ("error", "Invalid InChIKey format! Example: KXRPCFINVWWFHQ-UHFFFAOYSA-N")
+            if not inchikey:
+                st.session_state.upload_status = ("error", "Please enter a valid InChIKey！")
                 return False
-
+            
+            # InChIKey格式简单验证（标准格式含2个短横线）
+            if inchikey.count('-') != 2:
+                st.session_state.upload_status = ("error", "InChIKey format is invalid! Standard format example: KXRPCFINVWWFHQ-UHFFFAOYSA-N")
+                return False
+            
             st.session_state.uploaded_data = {
                 "type": "single_inchikey",
                 "data": inchikey,
@@ -118,108 +125,142 @@ def process_uploaded_data():
             }
             st.session_state.upload_status = ("success", f"Successfully uploaded InChIKey: {inchikey}")
             return True
-
-        else:
+            
+        else:  # Batch mode
+            # 处理批量文件
             batch_file = st.session_state.batch_file
             if batch_file is None:
-                st.session_state.upload_status = ("error", "Please upload the file first!")
+                st.session_state.upload_status = ("error", "Please upload the file!")
                 return False
-
-            if batch_file.name.endswith('.csv'):
-                df = pd.read_csv(batch_file)
-                if "InChIKey" not in df.columns:
-                    st.session_state.upload_status = ("error", "CSV must contain an 'InChIKey' column!")
+            
+            # 根据文件类型处理
+            try:
+                if batch_file.name.endswith('.csv'):
+                    df = pd.read_csv(batch_file)
+                    # 验证CSV是否包含InChIKey列
+                    if "InChIKey" not in df.columns:
+                        st.session_state.upload_status = ("error", "The CSV file must contain an “InChIKey” column!")
+                        return False
+                elif batch_file.name.endswith('.txt'):
+                    # 假设txt文件每行一个InChIKey
+                    content = batch_file.getvalue().decode('utf-8')
+                    inchikeys = [line.strip() for line in content.split('\n') if line.strip()]
+                    df = pd.DataFrame({"InChIKey": inchikeys})
+                else:
+                    st.session_state.upload_status = ("error", "Unsupported file format! Only CSV and TXT formats are supported")
                     return False
-            elif batch_file.name.endswith('.txt'):
-                content = batch_file.getvalue().decode('utf-8')
-                inchikeys = [line.strip() for line in content.split('\\n') if line.strip()]
-                df = pd.DataFrame({"InChIKey": inchikeys})
-            else:
-                st.session_state.upload_status = ("error", "Only CSV and TXT files supported!")
+            except Exception as e:
+                st.session_state.upload_status = ("error", f"File parsing failed: {str(e)}")
                 return False
-
+            
+            # 过滤无效InChIKey（格式验证）
             valid_inchikeys = [ik for ik in df["InChIKey"].dropna().unique() if ik.count('-') == 2]
             if len(valid_inchikeys) == 0:
-                st.session_state.upload_status = ("error", "No valid InChIKey found!")
+                st.session_state.upload_status = ("error", "No valid InChIKey found in the file！")
                 return False
-
+            
             st.session_state.uploaded_data = {
                 "type": "batch_file",
                 "data": pd.DataFrame({"InChIKey": valid_inchikeys}),
                 "filename": batch_file.name,
                 "timestamp": time.time(),
-                "record_count": len(valid_inchikeys)
+                "record_count": len(valid_inchikeys),
+                "original_count": len(df)
             }
-            st.session_state.upload_status = ("success", f"File uploaded successfully: {batch_file.name} with {len(valid_inchikeys)} valid entries.")
+            st.session_state.upload_status = (
+                "success", 
+                f"File successfully uploaded: {batch_file.name}, containing {len(df)} original records and {len(valid_inchikeys)} valid InChIKeys."
+            )
             return True
+            
     except Exception as e:
-        st.session_state.upload_status = ("error", f"Upload failed: {str(e)}")
+        st.session_state.upload_status = ("error", f"Upload processing failed: {str(e)}")
         return False
 
 
-# ===============================
-# Run Calculation
-# ===============================
 def run_flashmrm_calculation():
+    """运行 FlashMRM.py 的真实后端计算（支持批量处理）"""
     try:
         st.session_state.calculation_in_progress = True
+        st.session_state.calculation_complete = False
         st.session_state.progress_value = 0
         st.session_state.result_df = pd.DataFrame()
-
+        
+        # 1. 初始化配置
         config = Config()
-
-        # Choose interference data source
-        intf_data_selection = st.session_state.get("intf_data", "Default")
-        if intf_data_selection == "Default":
-            config.INTF_TQDB_PATH = 'INTF-TQDB(from NIST).csv'
-            config.USE_NIST_METHOD = True
-        elif intf_data_selection == "QE":
-            config.INTF_TQDB_PATH = 'INTF-TQDB(from QE).csv'
-            config.USE_NIST_METHOD = False
-        elif intf_data_selection == "Upload custom":
-            uploaded_file = st.session_state.get("custom_intf_file", None)
-            if uploaded_file is not None:
-                temp_path = f"uploaded_intf_{uploaded_file.name}"
-                with open(temp_path, "wb") as f:
-                    f.write(uploaded_file.getbuffer())
-                config.INTF_TQDB_PATH = temp_path
-                # Default to NIST-style method for custom CSV unless the user later adds a toggle
-                config.USE_NIST_METHOD = True
-                st.info(f"Using custom interference data: {uploaded_file.name}")
-            else:
-                st.error("Please upload a custom interference data file before running calculation!")
-                st.session_state.calculation_in_progress = False
-                return
-
-        # Apply tolerance & weight settings
+        # 从前端获取参数
         config.MZ_TOLERANCE = st.session_state.get("mz_tolerance", 0.7)
         config.RT_TOLERANCE = st.session_state.get("rt_tolerance", 2.0)
         config.RT_OFFSET = st.session_state.get("rt_offset", 0.0)
         config.SPECIFICITY_WEIGHT = st.session_state.get("specificity_weight", 0.2)
         config.OUTPUT_PATH = "flashmrm_output.csv"
-
-        # Prepare InChIKeys
+        
+        # 设置干扰数据库
+        intf_data_selection = st.session_state.get("intf_data", "Default")
+        if intf_data_selection == "Default":
+            config.INTF_TQDB_PATH = 'INTF-TQDB(from NIST).csv'
+            config.USE_NIST_METHOD = True
+        else:
+            config.INTF_TQDB_PATH = 'INTF-TQDB(from QE).csv'
+            config.USE_NIST_METHOD = False
+        
+        # 2. 获取目标InChIKey列表
         uploaded_data = st.session_state.uploaded_data
         if uploaded_data["type"] == "single_inchikey":
-            config.SINGLE_COMPOUND_MODE = True
-            config.TARGET_INCHIKEY = uploaded_data["data"]
             target_inchikeys = [uploaded_data["data"]]
+            config.SINGLE_COMPOUND_MODE = True
+            config.TARGET_INCHIKEY = target_inchikeys[0]
         else:
-            config.SINGLE_COMPOUND_MODE = False
             target_inchikeys = uploaded_data["data"]["InChIKey"].tolist()
-            config.MAX_COMPOUNDS = len(target_inchikeys)
-
-        # Load data once
-        optimizer = MRMOptimizer(config)
-        optimizer.load_all_data()
-
+            config.SINGLE_COMPOUND_MODE = False
+            config.MAX_COMPOUNDS = len(target_inchikeys)  # 按有效数量设置最大处理数
+        
+        # 3. 加载基础数据
+        try:
+            optimizer = MRMOptimizer(config)
+            optimizer.load_all_data()  # 加载demo、Pesudo-TQDB和INTF-TQDB数据
+        except ValueError as e:
+            if "No matching InChIKeys found" in str(e):
+                # 所有化合物均无匹配，生成批量0值结果
+                results = []
+                for inchikey in target_inchikeys:
+                    results.append({
+                        'chemical': 'not found',
+                        'Precursor_mz': 0.0,
+                        'InChIKey': inchikey,
+                        'RT': 0.0,
+                        'coverage_all': 0,
+                        'coverage_low': 0,
+                        'coverage_medium': 0,
+                        'coverage_high': 0,
+                        'MSMS1': 0.0,
+                        'MSMS2': 0.0,
+                        'CE_QQQ1': 0.0,
+                        'CE_QQQ2': 0.0,
+                        'best5_combinations': "no matching data in database",
+                        'max_score': 0.0,
+                        'max_sensitivity_score': 0.0,
+                        'max_specificity_score': 0.0,
+                    })
+                st.session_state.result_df = pd.DataFrame(results)
+                st.session_state.progress_value = 100
+                st.session_state.upload_status = ("error", "No matches found for all InChIKey entries in the database. Please verify your data.")
+                st.session_state.calculation_in_progress = False
+                st.session_state.calculation_complete = True
+                return
+            else:
+                raise  # 其他数据加载错误
+        
+        # 4. 遍历计算所有目标InChIKey
         results = []
-        total = len(target_inchikeys)
+        total_compounds = len(target_inchikeys)
         process_func = optimizer.process_compound_nist if config.USE_NIST_METHOD else optimizer.process_compound_qe
-
+        
         for idx, inchikey in enumerate(target_inchikeys):
             try:
+                # 检查当前InChIKey是否存在于匹配数据中
                 if not optimizer.check_inchikey_exists(inchikey):
+                    # 无匹配时生成0值结果
                     results.append({
                         'chemical': 'not found',
                         'Precursor_mz': 0.0,
@@ -238,11 +279,37 @@ def run_flashmrm_calculation():
                         'max_sensitivity_score': 0.0,
                         'max_specificity_score': 0.0,
                     })
+                    st.session_state.progress_value = int((idx + 1) / total_compounds * 100)
+                    time.sleep(0.1)
+                    continue
+                
+                # 调用后端计算函数
+                compound_result = process_func(inchikey)
+                if compound_result:
+                    results.append(compound_result)
                 else:
-                    r = process_func(inchikey)
-                    if r:
-                        results.append(r)
+                    # 计算失败时生成错误标记结果
+                    results.append({
+                        'chemical': 'calculation failed',
+                        'Precursor_mz': 0.0,
+                        'InChIKey': inchikey,
+                        'RT': 0.0,
+                        'coverage_all': 0,
+                        'coverage_low': 0,
+                        'coverage_medium': 0,
+                        'coverage_high': 0,
+                        'MSMS1': 0.0,
+                        'MSMS2': 0.0,
+                        'CE_QQQ1': 0.0,
+                        'CE_QQQ2': 0.0,
+                        'best5_combinations': "processing failed",
+                        'max_score': 0.0,
+                        'max_sensitivity_score': 0.0,
+                        'max_specificity_score': 0.0,
+                    })
+            
             except Exception as e:
+                # 单个化合物计算异常，记录错误信息
                 results.append({
                     'chemical': 'error',
                     'Precursor_mz': 0.0,
@@ -256,40 +323,74 @@ def run_flashmrm_calculation():
                     'MSMS2': 0.0,
                     'CE_QQQ1': 0.0,
                     'CE_QQQ2': 0.0,
-                    'best5_combinations': f"error: {str(e)[:50]}...",
+                    'best5_combinations': f"error: {str(e)[:50]}...",  # 截断长错误信息
                     'max_score': 0.0,
                     'max_sensitivity_score': 0.0,
                     'max_specificity_score': 0.0,
                 })
-
-            st.session_state.progress_value = int((idx + 1) / max(total, 1) * 100)
-            time.sleep(0.05)
-
-        st.session_state.result_df = pd.DataFrame(results)
+            
+            # 更新进度条
+            st.session_state.progress_value = int((idx + 1) / total_compounds * 100)
+            time.sleep(0.1)  # 避免前端进度条卡顿
+        
+        # 5. 整理最终结果
+        st.session_state.result_df = pd.DataFrame(results) if results else pd.DataFrame()
         st.session_state.progress_value = 100
-        st.session_state.upload_status = ("success", f"Calculation completed for {total} compounds!")
         st.session_state.calculation_complete = True
         st.session_state.calculation_in_progress = False
-
+        st.session_state.upload_status = ("success", f"Calculation complete! A total of {total_compounds} compounds have been processed.")
+    
     except Exception as e:
-        st.session_state.upload_status = ("error", f"Error: {str(e)}")
+        # 全局异常处理
         st.session_state.calculation_in_progress = False
         st.session_state.calculation_complete = True
+        error_msg = f"Calculation Overview Error: {str(e)}"
+        st.session_state.upload_status = ("error", error_msg)
+        
+        # 生成兜底结果（确保前端有数据显示）
+        fallback_results = []
+        target_inchikeys = []
+        if st.session_state.uploaded_data:
+            if st.session_state.uploaded_data["type"] == "single_inchikey":
+                target_inchikeys = [st.session_state.uploaded_data["data"]]
+            else:
+                target_inchikeys = st.session_state.uploaded_data["data"]["InChIKey"].tolist()
+        
+        for inchikey in target_inchikeys[:1]:  # 仅显示第一个化合物的错误兜底
+            fallback_results.append({
+                'chemical': 'global error',
+                'Precursor_mz': 0.0,
+                'InChIKey': inchikey,
+                'RT': 0.0,
+                'coverage_all': 0,
+                'coverage_low': 0,
+                'coverage_medium': 0,
+                'coverage_high': 0,
+                'MSMS1': 0.0,
+                'MSMS2': 0.0,
+                'CE_QQQ1': 0.0,
+                'CE_QQQ2': 0.0,
+                'best5_combinations': error_msg[:50] + "...",
+                'max_score': 0.0,
+                'max_sensitivity_score': 0.0,
+                'max_specificity_score': 0.0,
+            })
+        st.session_state.result_df = pd.DataFrame(fallback_results)
 
 
-# ===============================
-# Header & Help
-# ===============================
+# 主标题和Help按钮
 col_title, col_help = st.columns([2, 1])
 with col_title:
-    st.image("786a50646609813e89cc2017082525a3.png", width=200)
+   st.image("786a50646609813e89cc2017082525a3.png", width=200)
 with col_help:
-    if st.button("Help", key="help_btn", use_container_width=True):
+   with col_help:
+    if st.button("Help", width='stretch', key="help_btn"):  
         st.session_state.show_help = not st.session_state.get('show_help', False)
 
+# 显示帮助信息
 if st.session_state.get('show_help', False):
     st.info("""
-**Instruction for Use**
+    **Instruction for Use**
 1. **Select Input mode**  
    - *Single InChIKey*: Enter a standard InChIKey (e.g., `KXRPCFINVWWFHQ-UHFFFAOYSA-N`).  
    - *Batch mode*: Upload a CSV (containing column `InChIKey`) or a TXT file (one InChIKey per line).  
@@ -320,15 +421,12 @@ You can download the demo dataset used for testing here:
 | NINICLYMRSJISH-UHFFFAOYSA-N | Caffeine | 195.09 | 1.80 | Positive |
 """)
 
-
-# ===============================
-# Input Mode
-# ===============================
+# 输入模式选择
 st.markdown('<div class="section-header">Select Input mode</div>', unsafe_allow_html=True)
 col_a, col_b = st.columns([1, 2])
 with col_a:
     selected_mode = st.radio(
-        "Input mode:",
+        "Select Input mode:",
         ["Input InChIKey", "Batch mode"],
         index=0 if st.session_state.input_mode == "Input InChIKey" else 1,
         key="mode_selector",
@@ -336,143 +434,218 @@ with col_a:
     )
 with col_b:
     if selected_mode == "Input InChIKey":
+        # 单个模式输入框
         inchikey_input = st.text_input(
-            "Enter InChIKey:",
+            "Input InChIKey:",
             value=st.session_state.inchikey_value,
-            placeholder="Example: KXRPCFINVWWFHQ-UHFFFAOYSA-N",
+            placeholder="For example:KXRPCFINVWWFHQ-UHFFFAOYSA-N",
             label_visibility="collapsed",
             key="inchikey_input_active"
         )
-        if inchikey_input is not None:
+        if inchikey_input:
             st.session_state.inchikey_value = inchikey_input
+        
+        # 禁用的批量上传框（占位）
         st.file_uploader(
-            "Batch mode (disabled)",
+            "Batch mode:",
             type=['txt', 'csv'],
             label_visibility="collapsed",
             key="batch_input_disabled",
-            disabled=True
+            disabled=True,
+            help="Disable batch uploads in single-file mode"
         )
     else:
+        # 禁用的单个输入框（占位）
         st.text_input(
-            "Input InChIKey (disabled)",
+            "Input InChIKey:",
             value="",
-            placeholder="Disabled in batch mode",
+            placeholder="Disable individual input in batch mode",
             label_visibility="collapsed",
             key="inchikey_input_disabled",
             disabled=True
         )
+        
+        # 批量模式文件上传
         batch_input = st.file_uploader(
-            "Batch mode file:",
+            "Batch mode:",
             type=['txt', 'csv'],
+            help="Drag and drop files here. Supported formats: CSV (including an “InChIKey” column) and TXT (one InChIKey per line). ",
             label_visibility="collapsed",
-            help="Upload CSV (InChIKey column) or TXT (one per line).",
             key="batch_input_active"
         )
         if batch_input is not None:
             st.session_state.batch_file = batch_input
 
-# Upload button (moved up near Input mode)
-upload_clicked = st.button(
-    "Upload",
-    use_container_width=True,
-    key="upload_button",
-    disabled=st.session_state.calculation_in_progress
-)
+# 更新输入模式
+if selected_mode != st.session_state.input_mode:
+    st.session_state.input_mode = selected_mode
+    st.session_state.uploaded_data = None  # 切换模式时清空已上传数据
+    st.session_state.upload_status = None
+    st.rerun()
+
+# 参数设置部分
+st.markdown('<div class="section-header">Parameter setting</div>', unsafe_allow_html=True)
+with st.container():
+    # 第一行参数：数据库选择 + 上传按钮
+    col1, col2, col3 = st.columns([2, 2, 1])
+    with col1:
+        intf_data = st.selectbox(
+            "Select INTF data:",
+            ["Default", "QE"],
+            index=0,
+            key="intf_data",
+            help="Default: Using NIST Format Interference Database；QE: Using QE format to interference with the database"
+        )
+    with col2:
+        st.write("")  # 占位对齐
+    with col3:
+        upload_clicked = st.button(
+            "Upload", 
+            width='stretch',  # 修复use_container_width为width='stretch'
+            key="upload_button",
+            disabled=st.session_state.calculation_in_progress
+        )
+
+    # 第二行参数：M/z容差 + RT偏移
+    col4, col5 = st.columns([1, 1])
+    with col4:
+        mz_tolerance = st.number_input(
+            "M/z tolerance:",
+            min_value=0.0,
+            max_value=10.0,
+            value=0.7,
+            step=0.1,
+            help="Mass-to-charge ratio matching tolerance, default 0.7",
+            key="mz_tolerance"
+        )
+    with col5:
+        rt_offset = st.number_input(
+            "RT offset:",
+            min_value=-10.0,
+            max_value=10.0,
+            value=0.0,
+            step=0.5,
+            help="Retention time offset, default 0.0 minutes",
+            key="rt_offset"
+        )
+
+    # 第三行参数：RT容差 + 特异性权重
+    col6, col7 = st.columns([1, 1])
+    with col6:
+        rt_tolerance = st.number_input(
+            "RT tolerance:",
+            min_value=0.0,
+            max_value=10.0,
+            value=2.0,
+            step=0.1,
+            help="Retention time matching tolerance, default 2.0 minutes",
+            key="rt_tolerance"
+        )
+    with col7:
+        specificity_weight = st.number_input(
+            "Specificity weight:",
+            min_value=0.0,
+            max_value=1.0,
+            value=0.2,
+            step=0.05,
+            help="Specificity weight (0–1), default 0.2",
+            key="specificity_weight"
+        )
+
+# 处理Upload按钮点击
 if upload_clicked:
     process_uploaded_data()
 
-# Upload status
+# 显示上传状态
 if st.session_state.upload_status:
-    t, msg = st.session_state.upload_status
-    st.markdown(f'<div class="upload-status {t}">{msg}</div>', unsafe_allow_html=True)
+    status_type, message = st.session_state.upload_status
+    st.markdown(f'<div class="upload-status {status_type}">{message}</div>', unsafe_allow_html=True)
 
-# ===============================
-# Parameter Section
-# ===============================
-st.markdown('<div class="section-header">Parameter setting</div>', unsafe_allow_html=True)
-col1, col2 = st.columns([2, 2])
-with col1:
-    intf_data = st.selectbox(
-        "Select INTF data:",
-        ["Default", "QE", "Upload custom"],
-        index=0,
-        key="intf_data",
-        help="Default: use NIST; QE: QE-based; Upload custom: use your CSV interference data"
-    )
-with col2:
-    st.write("")
+# 显示已上传的数据信息（展开面板）
+if st.session_state.uploaded_data:
+    with st.expander("Data information has been uploaded", expanded=False):
+        ud = st.session_state.uploaded_data
+        st.write(f"Data type: {'Single InChIKey' if ud['type'] == 'single_inchikey' else 'Batch file'}")
+        st.write(f"Upload time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(ud['timestamp']))}")
+        
+        if ud["type"] == "single_inchikey":
+            st.write(f"InChIKey: {ud['data']}")
+        else:
+            st.write(f"filename: {ud['filename']}")
+            st.write(f"Number of original records: {ud.get('original_count', 0)}")
+            st.write(f"Valid InChIKey count: {ud['record_count']}")
+            st.write("Valid InChIKey Preview:")
+            st.dataframe(ud['data'].head(10), use_container_width=False)  # 非必要宽度，用默认content
+            if len(ud['data']) > 10:
+                st.write(f"... totle{len(ud['data'])}valid records")
 
-# Custom upload for interference data
-if intf_data == "Upload custom":
-    st.markdown("#### Upload your interference data (CSV format)")
-    custom_file = st.file_uploader(
-        "Choose your interference CSV file",
-        type=["csv"],
-        key="custom_intf_file",
-        help="Upload a custom interference data file (CSV)."
-    )
-    if custom_file is not None:
-        st.session_state["custom_intf_file"] = custom_file
-        st.success(f"Custom interference file uploaded: {custom_file.name}")
-
-col3, col4 = st.columns([1, 1])
-with col3:
-    st.number_input("M/z tolerance:", 0.0, 10.0, 0.7, 0.1, key="mz_tolerance")
-with col4:
-    st.number_input("RT tolerance:", 0.0, 10.0, 2.0, 0.1, key="rt_tolerance")
-
-col5, col6 = st.columns([1, 1])
-with col5:
-    st.number_input("RT offset:", -10.0, 10.0, 0.0, 0.5, key="rt_offset")
-with col6:
-    st.number_input("Specificity weight:", 0.0, 1.0, 0.2, 0.05, key="specificity_weight")
-
-# ===============================
-# Run Calculation Section
-# ===============================
+# 计算区域：按钮 + 进度条
 st.markdown('<div class="section-header">Calculate</div>', unsafe_allow_html=True)
-col_run, col_prog = st.columns([1, 3])
-with col_run:
+col_calc, col_prog = st.columns([1, 3])
+with col_calc:
     calculate_clicked = st.button(
-        "Calculate",
-        use_container_width=True,
-        disabled=(st.session_state.uploaded_data is None) or st.session_state.calculation_in_progress
+        "Calculate", 
+        width='stretch',  
+        type="primary", 
+        key="calculate_main",
+        disabled=st.session_state.calculation_in_progress or st.session_state.uploaded_data is None
     )
 with col_prog:
-    st.progress(st.session_state.progress_value, text=f"{st.session_state.progress_value}% complete")
+    # 实时更新的进度条
+    progress_bar = st.progress(st.session_state.progress_value, text=f"Processing progress: {st.session_state.progress_value}%")
 
+# 若进度值变化，更新进度条文本
+if st.session_state.progress_value != progress_bar.value:
+    progress_bar.progress(st.session_state.progress_value, text=f"Processing progress: {st.session_state.progress_value}%")
+
+# 运行计算逻辑
 if calculate_clicked:
     if st.session_state.uploaded_data is None:
-        st.error("Please upload data first!")
+        st.error("Please first use the ‘Upload’ button to upload and verify the data！")
     else:
         run_flashmrm_calculation()
 
-# ===============================
-# Display Results
-# ===============================
+# 显示计算结果
 if st.session_state.calculation_complete:
-    st.markdown('<div class="section-header">Results</div>', unsafe_allow_html=True)
-    df = st.session_state.result_df
-    if not df.empty:
-        # Show compact table without the long best5 column by default
-        display_columns = [c for c in df.columns if c != 'best5_combinations']
-        st.dataframe(df[display_columns])
-        with st.expander("Show full results (including top-5 ion pairs)"):
-            st.dataframe(df)
-
-        csv = df.to_csv(index=False).encode('utf-8')
-        st.download_button("📥 Download Results CSV", csv, f"FlashMRM_results_{time.strftime('%Y%m%d%H%M%S')}.csv", "text/csv")
-        success_count = (df['chemical'].notna() & ~df['chemical'].isin(['not found','calculation failed','error','global error'])).sum()
-        st.success(f"Calculation complete ✅ | Successfully processed: {success_count} | Total: {len(df)}")
+    st.markdown('<div class="section-header">Calculation results</div>', unsafe_allow_html=True)
+    result_df = st.session_state.result_df
+    
+    if not result_df.empty:
+        # 显示结果表格（隐藏过长的best5_combinations列，默认不显示）
+        display_columns = [col for col in result_df.columns if col != 'best5_combinations']
+        st.dataframe(result_df[display_columns], use_container_width=False)  # 非必要宽度，用默认content
+        
+        # 显示完整结果（展开面板）
+        with st.expander("查看完整结果（含最佳5组离子对）", expanded=False):
+            st.dataframe(result_df, use_container_width=False)
+        
+        # 下载结果：修复use_container_width为width='stretch'
+        csv_data = result_df.to_csv(index=False, encoding='utf-8').encode('utf-8')
+        st.download_button(
+            label="📥 Download results CSV",
+            data=csv_data,
+            file_name=f"FlashMRM_results_{time.strftime('%Y%m%d%H%M%S')}.csv",
+            mime="text/csv",
+            width='stretch',
+            key="download_result"
+        )
+        
+        # 计算统计：删除不存在的'other_condition'列，仅基于chemical列有效值判断
+        # 成功的条件：chemical不为空且不是错误/未找到标记
+        success_conditions = (
+            result_df['chemical'].notna() & 
+            ~result_df['chemical'].isin(['not found', 'calculation failed', 'error', 'global error'])
+        )
+        success_count = success_conditions.sum()  # 用sum()统计True的数量，避免len()的歧义
+        
+        st.success(f"Calculation complete ✅ | Successfully processed: {success_count}| Overall processing: {len(result_df)}")
     else:
-        st.warning("No valid results generated.")
+        st.warning("No results generated. Please check your input data or parameter configuration！")
 
-# ===============================
-# Sidebar
-# ===============================
+# 页脚信息
 st.sidebar.markdown("---")
-st.sidebar.markdown("**FlashMRM** - MRM transition optimization tool")
-st.sidebar.markdown(f"Current time: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+st.sidebar.markdown("**FlashMRM** - 质谱MRM参数优化工具")
+st.sidebar.markdown(f"当前时间: {time.strftime('%Y-%m-%d %H:%M:%S')}")
 
 
 
