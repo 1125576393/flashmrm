@@ -207,7 +207,7 @@ def run_flashmrm_calculation():
         
         # 设置干扰数据库
         intf_data_selection = st.session_state.get("intf_data", "NIST")
-        if intf_data_selection == "NIST":
+        if intf_data_selection == "Default":
             # 后端代码会读取这个文件夹下的所有CSV文件
             config.INTF_TQDB_PATH = 'INTF_TQDB_NIST'
             config.USE_NIST_METHOD = True
@@ -650,11 +650,6 @@ if st.session_state.calculation_complete:
         display_columns = [col for col in result_df.columns if col != 'best5_combinations']
         st.dataframe(result_df[display_columns], use_container_width=False)  # 非必要宽度，用默认content
         
-        # 显示完整结果（展开面板）
-        with st.expander("查看完整结果（含最佳5组离子对）", expanded=False):
-            st.dataframe(result_df, use_container_width=False)
-        
-        # 下载结果：修复use_container_width为width='stretch'
         csv_data = result_df.to_csv(index=False, encoding='utf-8').encode('utf-8')
         st.download_button(
             label="📥 Download results CSV",
@@ -740,6 +735,7 @@ else:
 st.sidebar.markdown("---")
 st.sidebar.markdown("**FlashMRM** - 质谱MRM参数优化工具")
 st.sidebar.markdown(f"当前时间: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+
 
 
 
