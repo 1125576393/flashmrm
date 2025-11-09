@@ -664,6 +664,65 @@ if st.session_state.calculation_complete:
             width='stretch',
             key="download_result"
         )
+
+         # ====== 新增开始：联动“最佳5组离子对”视图 ======
+    st.markdown('<div class="section-header">Best 5 ion-pair combinations</div>', unsafe_allow_html=True)
+
+    IONPAIR_COLUMNS = [
+        'MSMS1','intensity1','CE1','MSMS2','intensity2','CE2',
+        'interference_level1','interference_level2','intensity_sum','interference_level_sum',
+        'sensitivity_score','specificity_score','intensity_score','interference_score','score',
+        'hit_num','hit_rate','CE_QQQ1','CE_QQQ2'
+    ]
+
+    def _normalize_top5_rows(raw_list):
+        import pandas as pd
+        # 1) 解析：可能是字符串“processing failed / no combination”等
+        if not isinstance(raw_list, (list, tuple)):
+            df = pd.DataFrame(columns=IONPAIR_COLUMNS)
+        else:
+            df = pd.DataFrame(raw_list)
+
+        # 2) 补齐缺失列为0（兼容不同后端字段）
+        for c in IONPAIR_COLUMNS:
+            if c not in df.columns:
+                df[c] = 0
+
+        # 3) 只保留定义好的列并取前5
+        df = df[IONPAIR_COLUMNS].head(5)
+
+        # 4) 若不足5行，用0补齐
+        if len(df) < 5:
+            import pandas as pd
+            n_missing = 5 - len(df)
+            zero_row = {c: 0 for c in IONPAIR_COLUMNS}
+            df = pd.concat([df, pd.DataFrame([zero_row]*n_missing)], ignore_index=True)
+
+        return df
+
+    # —— 选择要查看的化合物（默认第1个，满足“以Calculation results表格中第一个化合物为默认”） ——
+    result_df = st.session_state.result_df.copy()
+    result_df['_display_key'] = result_df.apply(
+        lambda r: f"{str(r.get('chemical',''))} | {str(r.get('InChIKey',''))}", axis=1
+    )
+    selected_key = st.selectbox(
+        "Select a compound to view its Top-5 ion pairs:",
+        options=result_df['_display_key'].tolist(),
+        index=0
+    )
+    sel_row = result_df[result_df['_display_key'] == selected_key].iloc[0]
+    top5_df = _normalize_top5_rows(sel_row.get('best5_combinations'))
+
+    st.dataframe(top5_df, use_container_width=True, hide_index=True)
+
+    st.download_button(
+        label="📥 Download Top-5 ion pairs (CSV)",
+        data=top5_df.to_csv(index=False).encode('utf-8'),
+        file_name="best5_ion_pairs.csv",
+        mime="text/csv",
+        key="download_best5"
+    )
+    # ====== 新增结束 ======
         
         # 计算统计：删除不存在的'other_condition'列，仅基于chemical列有效值判断
         # 成功的条件：chemical不为空且不是错误/未找到标记
@@ -681,6 +740,7 @@ if st.session_state.calculation_complete:
 st.sidebar.markdown("---")
 st.sidebar.markdown("**FlashMRM** - 质谱MRM参数优化工具")
 st.sidebar.markdown(f"当前时间: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+
 
 
 
