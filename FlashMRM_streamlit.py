@@ -724,22 +724,23 @@ if st.session_state.calculation_complete:
     )
     # ====== 新增结束 ======
         
-        # 计算统计：删除不存在的'other_condition'列，仅基于chemical列有效值判断
-        # 成功的条件：chemical不为空且不是错误/未找到标记
-        success_conditions = (
-            result_df['chemical'].notna() & 
-            ~result_df['chemical'].isin(['not found', 'calculation failed', 'error', 'global error'])
-            )
-        success_count = success_conditions.sum()  # 用sum()统计True的数量，避免len()的歧义
+    # 计算统计：删除不存在的'other_condition'列，仅基于chemical列有效值判断
+    # 成功的条件：chemical不为空且不是错误/未找到标记
+    success_conditions = (
+        result_df['chemical'].notna() & 
+        ~result_df['chemical'].isin(['not found', 'calculation failed', 'error', 'global error'])
+    )
+    success_count = success_conditions.sum()  # 用sum()统计True的数量，避免len()的歧义
         
-        st.success(f"Calculation complete ✅ | Successfully processed: {success_count}| Overall processing: {len(result_df)}")
-    else:
-        st.warning("No results generated. Please check your input data or parameter configuration！")
+    st.success(f"Calculation complete ✅ | Successfully processed: {success_count}| Overall processing: {len(result_df)}")
+else:
+    st.warning("No results generated. Please check your input data or parameter configuration！")
 
 # 页脚信息
 st.sidebar.markdown("---")
 st.sidebar.markdown("**FlashMRM** - 质谱MRM参数优化工具")
 st.sidebar.markdown(f"当前时间: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+
 
 
 
