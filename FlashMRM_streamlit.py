@@ -11,11 +11,14 @@ st.set_page_config(
     layout="wide"
 )
 
-# 自定义CSS样式
+# 自定义CSS样式（放大字体）
 st.markdown("""
 <style>
+    html, body, [class*="css"] {
+        font-size: 18px !important;
+    }
     .main-header {
-        font-size: 24px;
+        font-size: 28px !important;
         font-weight: bold;
         margin-bottom: 30px;
         color: #1f77b4;
@@ -24,7 +27,7 @@ st.markdown("""
         align-items: center;
     }
     .section-header {
-        font-size: 18px;
+        font-size: 22px !important;
         font-weight: bold;
         margin-top: 30px;
         margin-bottom: 15px;
@@ -34,9 +37,10 @@ st.markdown("""
         align-items: center;
         margin-bottom: 15px;
     }
-    .input-label {
+    .input-label, label, .stTextInput label, .stNumberInput label {
         width: 150px;
         font-weight: bold;
+        font-size: 18px !important;
     }
     .result-container {
         margin-top: 30px;
@@ -68,7 +72,7 @@ st.markdown("""
         color: #721c24;
         border: 1px solid #f5c6cb;
     }
-     .calculate-container {
+    .calculate-container {
         display: flex;
         align-items: center;
         gap: 20px;
@@ -86,6 +90,15 @@ st.markdown("""
     /* 为文件上传区域添加底部间距 */
     .uploadedFile {
         margin-bottom: 40px !important;
+    }
+
+    /* 新增：表格与按钮字体放大 */
+    .stDataFrame th, .stDataFrame td {
+        font-size: 16px !important;
+    }
+    .stButton>button {
+        font-size: 18px !important;
+        height: 45px !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -735,6 +748,7 @@ else:
 st.sidebar.markdown("---")
 st.sidebar.markdown("**FlashMRM** - 质谱MRM参数优化工具")
 st.sidebar.markdown(f"当前时间: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+
 
 
 
