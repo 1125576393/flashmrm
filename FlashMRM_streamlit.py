@@ -499,27 +499,32 @@ You can download the demo dataset used for testing here:
 # 输入模式选择
 st.markdown('<div class="section-header">Select Input mode</div>', unsafe_allow_html=True)
 st.markdown('<div class="mode-container">', unsafe_allow_html=True)
-col_a, col_b = st.columns([1, 3])
+
+col_a, col_b = st.columns([1, 3], gap="small")
+
 with col_a:
     selected_mode = st.radio(
         "Select Input mode:",
         ["Input InChIKey", "Batch mode"],
-        index=0 if st.session_state.input_mode == "Input InChIKey" else 1,
+        index=0 if st.session_state.get("input_mode", "Input InChIKey") == "Input InChIKey" else 1,
         key="mode_selector",
         label_visibility="collapsed"
     )
+
 with col_b:
     if selected_mode == "Input InChIKey":
-        # 单个模式输入框
         inchikey_input = st.text_input(
             "Input InChIKey:",
-            value=st.session_state.inchikey_value,
-            placeholder="For example:KXRPCFINVWWFHQ-UHFFFAOYSA-N",
+            value=st.session_state.get("inchikey_value", ""),
+            placeholder="For example: KXRPCFINVWWFHQ-UHFFFAOYSA-N",
             label_visibility="collapsed",
             key="inchikey_input_active"
         )
         if inchikey_input:
             st.session_state.inchikey_value = inchikey_input
+
+st.markdown('</div>', unsafe_allow_html=True)
+
         
         # 禁用的批量上传框（占位）
         st.file_uploader(
@@ -776,6 +781,7 @@ else:
 st.sidebar.markdown("---")
 st.sidebar.markdown("**FlashMRM** - 质谱MRM参数优化工具")
 st.sidebar.markdown(f"当前时间: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+
 
 
 
