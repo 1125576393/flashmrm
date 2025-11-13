@@ -81,7 +81,6 @@ st.markdown("""
     .progress-container {
         flex-grow: 1;
     }
-
         /* 控制左右布局*/
     .mode-container {
         display: flex;
@@ -90,35 +89,30 @@ st.markdown("""
         margin-top: 0.5rem;
         margin-bottom: 0.5rem;
     }
-
     /* 左侧区域（radio）的样式 */
     .mode-left {
         flex: 0 0 auto;
         text-align: right;
         padding-right: 6px;        /* 进一步缩小与输入框的间隙 */
     }
-    
     /* 右侧区域（输入框）的样式 */
     .mode-right {
         flex: 1;
     }
-    
     /* 让输入框本身稍微更贴近整体 */
     .mode-right .stTextInput {
         margin-top: 0px !important;
         margin-bottom: 0px !important;
     }
-
+    
     /* 新增：为主要区块添加额外间距 */
     .stRadio {
         margin-bottom: 40px !important;  /* 输入模式选择区块 */
     }
-    
     /* 为文件上传区域添加底部间距 */
     .uploadedFile {
         margin-bottom: 40px !important;
     }
-
     /* 新增：表格与按钮字体放大 */
     .stDataFrame th, .stDataFrame td {
         font-size: 16px !important;
@@ -151,7 +145,6 @@ if 'show_help' not in st.session_state:
     st.session_state.show_help = False
 if 'result_df' not in st.session_state:
     st.session_state.result_df = pd.DataFrame()
-
 
 def process_uploaded_data():
     """处理上传的数据"""
@@ -226,7 +219,6 @@ def process_uploaded_data():
     except Exception as e:
         st.session_state.upload_status = ("error", f"Upload processing failed: {str(e)}")
         return False
-
 
 def run_flashmrm_calculation():
     """运行 FlashMRM.py 的真实后端计算（支持批量处理）"""
@@ -428,7 +420,6 @@ def run_flashmrm_calculation():
                 'max_specificity_score': 0.0,
             })
         st.session_state.result_df = pd.DataFrame(fallback_results)
-
 
 # 主标题和Help按钮
 col_title, col_help = st.columns([2, 1])
@@ -775,31 +766,6 @@ if st.session_state.calculation_complete:
     st.success(f"Calculation complete ✅ | Successfully processed: {success_count}| Overall processing: {len(result_df)}")
 else:
     st.warning("No results generated. Please check your input data or parameter configuration！")
-
-# 页脚信息
-st.sidebar.markdown("---")
-st.sidebar.markdown("**FlashMRM** - 质谱MRM参数优化工具")
-st.sidebar.markdown(f"当前时间: {time.strftime('%Y-%m-%d %H:%M:%S')}")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
