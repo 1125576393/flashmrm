@@ -602,8 +602,8 @@ if st.session_state.uploaded_data:
 st.markdown('<div class="section-header">Parameter setting</div>', unsafe_allow_html=True)
 with st.container():
 # 第 0 行：Select INTF data
-    col1, col2 = st.columns([2, 2])
-    with col1:
+    col1, col2 = st.columns([1, 3])
+    with col1:s
         intf_data = st.selectbox(
             "Select INTF data:",
             ["Default", "QE"],
@@ -616,7 +616,7 @@ with st.container():
 
     st.markdown('<div class="param-row">', unsafe_allow_html=True)
 # 第 1 行：M/z tolerance（左） & RT offset（右）
-    row1_blank1, row1_left, row1_right, row1_blank2 = st.columns([1, 1, 1, 1], gap="small")
+    row1_blank1, row1_left, row1_right, row1_blank2 = st.columns([1, 3, 3, 1], gap="small")
     with row1_blank1:
         st.write("")   # 右边空着，让整体对齐
     with row1_left:
@@ -649,7 +649,7 @@ with st.container():
         st.write("")   # 右边空着，让整体对齐
         
 # 第 2 行：RT tolerance（左） & Specificity weight（右）
-    row2_blank1, row2_left, row2_right, row2_blank2 = st.columns([1, 1, 1, 1], gap="small")
+    row2_blank1, row2_left, row2_right, row2_blank2 = st.columns([1, 3, 3, 1], gap="small")
     with row2_blank1:
         st.write("")   # 右边空着，让整体对齐
     with row2_left:
@@ -798,6 +798,7 @@ if st.session_state.calculation_complete:
     st.success(f"Calculation complete ✅ | Successfully processed: {success_count}| Overall processing: {len(result_df)}")
 else:
     st.warning("No results generated. Please check your input data or parameter configuration！")
+
 
 
 
