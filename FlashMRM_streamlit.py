@@ -629,6 +629,7 @@ with st.container():
                 step=0.1,
                 help="Mass-to-charge ratio matching tolerance, default 0.7",
                 key="mz_tolerance",
+                label_visibility="collapsed"
             )
 
     with row1_col2:
@@ -644,6 +645,7 @@ with st.container():
                 step=0.5,
                 help="Retention time offset, default 0.0 minutes",
                 key="rt_offset",
+                label_visibility="collapsed"
             )
     row2_col1, row2_col2 = st.columns(2)
     with row2_col1:
@@ -659,6 +661,7 @@ with st.container():
                 step=0.1,
                 help="Retention time matching tolerance, default 2.0 minutes",
                 key="rt_tolerance",
+                label_visibility="collapsed"
             )
 
     with row2_col2:
@@ -674,6 +677,7 @@ with st.container():
                 step=0.05,
                 help="Specificity weight (0–1), default 0.2",
                 key="specificity_weight",
+                label_visibility="collapsed"
             )
 
     st.markdown('</div>', unsafe_allow_html=True)  # param-row 结束
@@ -795,6 +799,7 @@ if st.session_state.calculation_complete:
     st.success(f"Calculation complete ✅ | Successfully processed: {success_count}| Overall processing: {len(result_df)}")
 else:
     st.warning("No results generated. Please check your input data or parameter configuration！")
+
 
 
 
