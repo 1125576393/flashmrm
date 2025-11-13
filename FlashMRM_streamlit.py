@@ -600,88 +600,81 @@ if st.session_state.uploaded_data:
 
 #参数设置部分
 st.markdown('<div class="section-header">Parameter setting</div>', unsafe_allow_html=True)
+
 with st.container():
     st.markdown('<div class="param-row">', unsafe_allow_html=True)
-#select data mode
-    row0_label, row0_input = st.columns([1, 1], gap="small")
-    with row0_label:
+
+第 0 行：Select INTF data
+    row0_col1, row0_col2 = st.columns([1, 3], gap="small")
+    with row0_col1:
         st.markdown('<span class="param-label">Select INTF data:</span>', unsafe_allow_html=True)
-    with row0_input:
+    with row0_col2:
         intf_data = st.selectbox(
             "Select INTF data:",
             ["Default", "QE"],
             index=0,
             key="intf_data",
-            help="Default: Using NIST Format Interference Database；QE: Using QE format to interference with the database",
+            help="Default = NIST format interference DB；QE = QE format interference DB",
             label_visibility="collapsed"
         )
 
-#M/z tolerance & RT offset 
-    row1_col1, row1_col2 = st.columns(2, gap="large")
-    with row1_col1:
-        mz_label, mz_input = st.columns([1, 1], gap="small")
-        with mz_label:
+# 第 1 行：M/z tolerance（左） & RT offset（右）
+    row1_left, row1_right = st.columns([1, 2], gap="small")
+    with row1_left:
+        col_label, col_input = st.columns([1, 1], gap="small")
+        with col_label:
             st.markdown('<span class="param-label">M/z tolerance:</span>', unsafe_allow_html=True)
-        with mz_input:
+        with col_input:
             mz_tolerance = st.number_input(
                 "M/z tolerance:",
-                min_value=0.0,
-                max_value=10.0,
-                value=0.7,
-                step=0.1,
-                help="Mass-to-charge ratio matching tolerance, default 0.7",
+                min_value=0.0, max_value=10.0,
+                value=0.7, step=0.1,
+                help="Mass/charge tolerance",
                 key="mz_tolerance",
                 label_visibility="collapsed"
             )
-    with row1_col2:
-        rt_off_label, rt_off_input = st.columns([1, 1], gap="small")
-        with rt_off_label:
+    with row1_right:
+        col_label, col_input = st.columns([1, 1], gap="small")
+        with col_label:
             st.markdown('<span class="param-label">RT offset:</span>', unsafe_allow_html=True)
-        with rt_off_input:
+        with col_input:
             rt_offset = st.number_input(
                 "RT offset:",
-                min_value=-10.0,
-                max_value=10.0,
-                value=0.0,
-                step=0.5,
-                help="Retention time offset, default 0.0 minutes",
+                min_value=-10.0, max_value=10.0,
+                value=0.0, step=0.1,
+                help="Retention time offset",
                 key="rt_offset",
                 label_visibility="collapsed"
             )
 
-#RT tolerance & Specificity weight 
-    row2_col1, row2_col2 = st.columns(2, gap="large")
-    with row2_col1:
-        rt_tol_label, rt_tol_input = st.columns([1, 1], gap="small")
-        with rt_tol_label:
+# 第 2 行：RT tolerance（左） & Specificity weight（右）
+    row2_left, row2_right = st.columns([1, 2], gap="small")
+    with row2_left:
+        col_label, col_input = st.columns([1, 1], gap="small")
+        with col_label:
             st.markdown('<span class="param-label">RT tolerance:</span>', unsafe_allow_html=True)
-        with rt_tol_input:
+        with col_input:
             rt_tolerance = st.number_input(
                 "RT tolerance:",
-                min_value=0.0,
-                max_value=10.0,
-                value=2.0,
-                step=0.1,
-                help="Retention time matching tolerance, default 2.0 minutes",
+                min_value=0.0, max_value=10.0,
+                value=2.0, step=0.1,
+                help="Retention time matching tolerance",
                 key="rt_tolerance",
                 label_visibility="collapsed"
             )
-    with row2_col2:
-        sp_label, sp_input = st.columns([1, 1], gap="small")
-        with sp_label:
+    with row2_right:
+        col_label, col_input = st.columns([1, 1], gap="small")
+        with col_label:
             st.markdown('<span class="param-label">Specificity weight:</span>', unsafe_allow_html=True)
-        with sp_input:
+        with col_input:
             specificity_weight = st.number_input(
                 "Specificity weight:",
-                min_value=0.0,
-                max_value=1.0,
-                value=0.2,
-                step=0.05,
-                help="Specificity weight (0–1), default 0.2",
+                min_value=0.0, max_value=1.0,
+                value=0.2, step=0.05,
+                help="Specificity weight",
                 key="specificity_weight",
                 label_visibility="collapsed"
             )
-
     st.markdown('</div>', unsafe_allow_html=True)
 
 
@@ -801,6 +794,7 @@ if st.session_state.calculation_complete:
     st.success(f"Calculation complete ✅ | Successfully processed: {success_count}| Overall processing: {len(result_df)}")
 else:
     st.warning("No results generated. Please check your input data or parameter configuration！")
+
 
 
 
