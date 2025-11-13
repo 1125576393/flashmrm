@@ -81,29 +81,6 @@ st.markdown("""
     .progress-container {
         flex-grow: 1;
     }
-        /* 控制左右布局*/
-    .mode-container {
-        display: flex;
-        align-items: center;  
-        gap: 0.4rem;               /* 控制左右间距，可根据需要微调，例如 0.5rem 或 1rem */
-        margin-top: 0.5rem;
-        margin-bottom: 0.5rem;
-    }
-    /* 左侧区域（radio）的样式 */
-    .mode-left {
-        flex: 0 0 auto;
-        text-align: right;
-        padding-right: 6px;        /* 进一步缩小与输入框的间隙 */
-    }
-    /* 右侧区域（输入框）的样式 */
-    .mode-right {
-        flex: 1;
-    }
-    /* 让输入框本身稍微更贴近整体 */
-    .mode-right .stTextInput {
-        margin-top: 0px !important;
-        margin-bottom: 0px !important;
-    }
     
     /* 新增：为主要区块添加额外间距 */
     .stRadio {
@@ -489,11 +466,15 @@ You can download the demo dataset used for testing here:
 
 # 输入模式选择
 st.markdown('<div class="section-header">Select Input mode</div>', unsafe_allow_html=True)
-st.markdown('<div class="mode-container">', unsafe_allow_html=True)
-
 col_a, col_b = st.columns([1, 3], gap="small")
 
 with col_a:
+     st.markdown(
+        """
+        <div style="display:flex; height:100%; align-items:center; justify-content:flex-end; padding-right:8px;">
+        """,
+        unsafe_allow_html=True
+    )
     selected_mode = st.radio(
         "Select Input mode:",
         ["Input InChIKey", "Batch mode"],
@@ -501,8 +482,16 @@ with col_a:
         key="mode_selector",
         label_visibility="collapsed"
     )
+    st.markdown("</div>", unsafe_allow_html=True)
 
 with col_b:
+     st.markdown(
+        """
+        <div style="display:flex; flex-direction:column; gap:0.35rem; width:100%;">
+        """,
+        unsafe_allow_html=True
+    )
+    
     if selected_mode == "Input InChIKey":
         inchikey_input = st.text_input(
             "Input InChIKey:",
@@ -544,8 +533,7 @@ with col_b:
         )
         if batch_input is not None:
             st.session_state.batch_file = batch_input
-            
-st.markdown('</div>', unsafe_allow_html=True)
+     st.markdown("</div>", unsafe_allow_html=True)  # 右侧容器结束
 
 # 更新输入模式
 if selected_mode != st.session_state.input_mode:
@@ -561,7 +549,7 @@ upload_clicked = st.button(
     key="upload_button",
     disabled=st.session_state.calculation_in_progress
 )
-    # 处理Upload按钮点击
+# 处理Upload按钮点击
 if upload_clicked:
     process_uploaded_data()
 
@@ -766,6 +754,7 @@ if st.session_state.calculation_complete:
     st.success(f"Calculation complete ✅ | Successfully processed: {success_count}| Overall processing: {len(result_df)}")
 else:
     st.warning("No results generated. Please check your input data or parameter configuration！")
+
 
 
 
