@@ -84,8 +84,8 @@ st.markdown("""
         /* 控制左右布局*/
     .mode-container {
         display: flex;
-        align-items: flex-start;   /* 保持默认对齐，不强制居中 */
-        gap: 0.8rem;               /* 控制左右间距，可根据需要微调，例如 0.5rem 或 1rem */
+        align-items: center;  
+        gap: 0.4rem;               /* 控制左右间距，可根据需要微调，例如 0.5rem 或 1rem */
         margin-top: 0.5rem;
         margin-bottom: 0.5rem;
     }
@@ -766,6 +766,7 @@ if st.session_state.calculation_complete:
     st.success(f"Calculation complete ✅ | Successfully processed: {success_count}| Overall processing: {len(result_df)}")
 else:
     st.warning("No results generated. Please check your input data or parameter configuration！")
+
 
 
 
