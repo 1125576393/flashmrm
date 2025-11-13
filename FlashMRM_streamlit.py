@@ -82,6 +82,33 @@ st.markdown("""
         flex-grow: 1;
     }
 
+        /* 控制左右布局*/
+    .mode-container {
+        display: flex;
+        align-items: flex-start;   /* 保持默认对齐，不强制居中 */
+        gap: 0.8rem;               /* 控制左右间距，可根据需要微调，例如 0.5rem 或 1rem */
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    /* 左侧区域（radio）的样式 */
+    .mode-left {
+        flex: 0 0 auto;
+        text-align: right;
+        padding-right: 6px;        /* 进一步缩小与输入框的间隙 */
+    }
+    
+    /* 右侧区域（输入框）的样式 */
+    .mode-right {
+        flex: 1;
+    }
+    
+    /* 让输入框本身稍微更贴近整体 */
+    .mode-right .stTextInput {
+        margin-top: 0px !important;
+        margin-bottom: 0px !important;
+    }
+
     /* 新增：为主要区块添加额外间距 */
     .stRadio {
         margin-bottom: 40px !important;  /* 输入模式选择区块 */
@@ -471,7 +498,8 @@ You can download the demo dataset used for testing here:
 
 # 输入模式选择
 st.markdown('<div class="section-header">Select Input mode</div>', unsafe_allow_html=True)
-col_a, col_b = st.columns([1, 2])
+st.markdown('<div class="mode-container">', unsafe_allow_html=True)
+col_a, col_b = st.columns([1, 3])
 with col_a:
     selected_mode = st.radio(
         "Select Input mode:",
@@ -748,6 +776,7 @@ else:
 st.sidebar.markdown("---")
 st.sidebar.markdown("**FlashMRM** - 质谱MRM参数优化工具")
 st.sidebar.markdown(f"当前时间: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+
 
 
 
