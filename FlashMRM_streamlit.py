@@ -86,8 +86,15 @@ st.markdown("""
     .param-label {
         font-weight: bold;
         font-size: 18px;
-        margin-right: 8px;
+        margin-right: 4px;
         white-space: nowrap;
+        text-align: right;      /* 关键：右对齐 */
+        display: block;
+    }
+     /* 参数区内部列的左右内边距缩小一点，让中间距离更小（可微调） */
+    .param-row .stColumn {
+        padding-right: 0.25rem;
+        padding-left: 0.25rem;
     }
     /* 参数区里 selectbox 的宽度也变短 */
     div.param-row div[data-testid="stSelectbox"] > div:first-child {
@@ -228,9 +235,7 @@ def run_flashmrm_calculation():
         st.session_state.progress_value = 0
         st.session_state.result_df = pd.DataFrame()
         
-        # 1. 初始化配置
         config = Config()
-        # 从前端获取参数
         config.MZ_TOLERANCE = st.session_state.get("mz_tolerance", 0.7)
         config.RT_TOLERANCE = st.session_state.get("rt_tolerance", 2.0)
         config.RT_OFFSET = st.session_state.get("rt_offset", 0.0)
@@ -240,11 +245,9 @@ def run_flashmrm_calculation():
         # 设置干扰数据库
         intf_data_selection = st.session_state.get("intf_data", "NIST")
         if intf_data_selection == "Default":
-            # 后端代码会读取这个文件夹下的所有CSV文件
             config.INTF_TQDB_PATH = 'INTF_TQDB_NIST'
             config.USE_NIST_METHOD = True
         else:
-            # 后端代码会读取这个文件夹下的所有CSV文件
             config.INTF_TQDB_PATH = 'INTF_TQDB_QE'
             config.USE_NIST_METHOD = False
         
@@ -265,7 +268,6 @@ def run_flashmrm_calculation():
             optimizer.load_all_data()  # 加载demo、Pesudo-TQDB和INTF-TQDB数据
         except ValueError as e:
             if "No matching InChIKeys found" in str(e):
-                # 所有化合物均无匹配，生成批量0值结果
                 results = []
                 for inchikey in target_inchikeys:
                     results.append({
@@ -293,7 +295,7 @@ def run_flashmrm_calculation():
                 st.session_state.calculation_complete = True
                 return
             else:
-                raise  # 其他数据加载错误
+                raise  
         
         # 4. 遍历计算所有目标InChIKey
         results = []
@@ -304,7 +306,6 @@ def run_flashmrm_calculation():
             try:
                 # 检查当前InChIKey是否存在于匹配数据中
                 if not optimizer.check_inchikey_exists(inchikey):
-                    # 无匹配时生成0值结果
                     results.append({
                         'chemical': 'not found',
                         'Precursor_mz': 0.0,
@@ -327,12 +328,10 @@ def run_flashmrm_calculation():
                     time.sleep(0.1)
                     continue
                 
-                # 调用后端计算函数
                 compound_result = process_func(inchikey)
                 if compound_result:
                     results.append(compound_result)
                 else:
-                    # 计算失败时生成错误标记结果
                     results.append({
                         'chemical': 'calculation failed',
                         'Precursor_mz': 0.0,
@@ -353,7 +352,6 @@ def run_flashmrm_calculation():
                     })
             
             except Exception as e:
-                # 单个化合物计算异常，记录错误信息
                 results.append({
                     'chemical': 'error',
                     'Precursor_mz': 0.0,
@@ -367,7 +365,7 @@ def run_flashmrm_calculation():
                     'MSMS2': 0.0,
                     'CE_QQQ1': 0.0,
                     'CE_QQQ2': 0.0,
-                    'best5_combinations': f"error: {str(e)[:50]}...",  # 截断长错误信息
+                    'best5_combinations': f"error: {str(e)[:50]}...", 
                     'max_score': 0.0,
                     'max_sensitivity_score': 0.0,
                     'max_specificity_score': 0.0,
@@ -557,13 +555,12 @@ with col_b:
         if batch_input is not None:
             st.session_state.batch_file = batch_input
 
-    st.markdown("</div>", unsafe_allow_html=True)  # 右侧容器结束
-
+    st.markdown("</div>", unsafe_allow_html=True)  
 
 # 更新输入模式
 if selected_mode != st.session_state.input_mode:
     st.session_state.input_mode = selected_mode
-    st.session_state.uploaded_data = None  # 切换模式时清空已上传数据
+    st.session_state.uploaded_data = None  
     st.session_state.upload_status = None
     st.rerun()
 
@@ -601,39 +598,31 @@ if st.session_state.uploaded_data:
             if len(ud['data']) > 10:
                 st.write(f"... totle{len(ud['data'])}valid records")
 
-# 参数设置部分
+#参数设置部分
 st.markdown('<div class="section-header">Parameter setting</div>', unsafe_allow_html=True)
 with st.container():
     st.markdown('<div class="param-row">', unsafe_allow_html=True)
+#select data mode
+    row0_label, row0_input = st.columns([1, 1], gap="small")
+    with row0_label:
+        st.markdown('<span class="param-label">Select INTF data:</span>', unsafe_allow_html=True)
+    with row0_input:
+        intf_data = st.selectbox(
+            "Select INTF data:",
+            ["Default", "QE"],
+            index=0,
+            key="intf_data",
+            help="Default: Using NIST Format Interference Database；QE: Using QE format to interference with the database",
+            label_visibility="collapsed"
+        )
 
-    # ===== 第 0 行：Select INTF data（左文字 + 右短下拉框） =====
-    row0_col1, row0_col2 = st.columns(2)
-
-    with row0_col1:
-        lbl, box = st.columns([2, 1])
-        with lbl:
-            st.markdown('<span class="param-label">Select INTF data:</span>', unsafe_allow_html=True)
-        with box:
-            intf_data = st.selectbox(
-                "Select INTF data:",
-                ["Default", "QE"],
-                index=0,
-                key="intf_data",
-                help="Default: Using NIST Format Interference Database；QE: Using QE format to interference with the database",
-                label_visibility="collapsed"   
-            )
-
-    with row0_col2:
-        st.write("")   # 右边空着，让整体对齐
-
-     # ===== 数值参数：做成 2 x 2 的小方框布局 =====
-    st.markdown('<div class="param-row">', unsafe_allow_html=True)
-    row1_col1, row1_col2 = st.columns(2)
+#M/z tolerance & RT offset 
+    row1_col1, row1_col2 = st.columns(2, gap="large")
     with row1_col1:
-        lbl, box = st.columns([2, 1])
-        with lbl:
+        mz_label, mz_input = st.columns([1, 1], gap="small")
+        with mz_label:
             st.markdown('<span class="param-label">M/z tolerance:</span>', unsafe_allow_html=True)
-        with box:
+        with mz_input:
             mz_tolerance = st.number_input(
                 "M/z tolerance:",
                 min_value=0.0,
@@ -644,12 +633,11 @@ with st.container():
                 key="mz_tolerance",
                 label_visibility="collapsed"
             )
-
     with row1_col2:
-        lbl, box = st.columns([2, 1])
-        with lbl:
+        rt_off_label, rt_off_input = st.columns([1, 1], gap="small")
+        with rt_off_label:
             st.markdown('<span class="param-label">RT offset:</span>', unsafe_allow_html=True)
-        with box:
+        with rt_off_input:
             rt_offset = st.number_input(
                 "RT offset:",
                 min_value=-10.0,
@@ -660,12 +648,14 @@ with st.container():
                 key="rt_offset",
                 label_visibility="collapsed"
             )
-    row2_col1, row2_col2 = st.columns(2)
+
+#RT tolerance & Specificity weight 
+    row2_col1, row2_col2 = st.columns(2, gap="large")
     with row2_col1:
-        lbl, box = st.columns([2, 1])
-        with lbl:
+        rt_tol_label, rt_tol_input = st.columns([1, 1], gap="small")
+        with rt_tol_label:
             st.markdown('<span class="param-label">RT tolerance:</span>', unsafe_allow_html=True)
-        with box:
+        with rt_tol_input:
             rt_tolerance = st.number_input(
                 "RT tolerance:",
                 min_value=0.0,
@@ -676,12 +666,11 @@ with st.container():
                 key="rt_tolerance",
                 label_visibility="collapsed"
             )
-
     with row2_col2:
-        lbl, box = st.columns([2, 1])
-        with lbl:
+        sp_label, sp_input = st.columns([1, 1], gap="small")
+        with sp_label:
             st.markdown('<span class="param-label">Specificity weight:</span>', unsafe_allow_html=True)
-        with box:
+        with sp_input:
             specificity_weight = st.number_input(
                 "Specificity weight:",
                 min_value=0.0,
@@ -693,7 +682,8 @@ with st.container():
                 label_visibility="collapsed"
             )
 
-    st.markdown('</div>', unsafe_allow_html=True)  # param-row 结束
+    st.markdown('</div>', unsafe_allow_html=True)
+
 
 # 计算区域：按钮 + 进度条
 st.markdown('<div class="section-header">Calculate</div>', unsafe_allow_html=True)
@@ -811,6 +801,7 @@ if st.session_state.calculation_complete:
     st.success(f"Calculation complete ✅ | Successfully processed: {success_count}| Overall processing: {len(result_df)}")
 else:
     st.warning("No results generated. Please check your input data or parameter configuration！")
+
 
 
 
