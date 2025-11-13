@@ -523,9 +523,6 @@ with col_b:
         if inchikey_input:
             st.session_state.inchikey_value = inchikey_input
 
-st.markdown('</div>', unsafe_allow_html=True)
-
-        
         # 禁用的批量上传框（占位）
         st.file_uploader(
             "Batch mode:",
@@ -556,6 +553,8 @@ st.markdown('</div>', unsafe_allow_html=True)
         )
         if batch_input is not None:
             st.session_state.batch_file = batch_input
+            
+st.markdown('</div>', unsafe_allow_html=True)
 
 # 更新输入模式
 if selected_mode != st.session_state.input_mode:
@@ -781,6 +780,7 @@ else:
 st.sidebar.markdown("---")
 st.sidebar.markdown("**FlashMRM** - 质谱MRM参数优化工具")
 st.sidebar.markdown(f"当前时间: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+
 
 
 
