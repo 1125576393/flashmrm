@@ -601,27 +601,24 @@ if st.session_state.uploaded_data:
 #参数设置部分
 st.markdown('<div class="section-header">Parameter setting</div>', unsafe_allow_html=True)
 with st.container():
-    st.markdown('<div class="param-row">', unsafe_allow_html=True)
 # 第 0 行：Select INTF data
-    row0_col1, row0_col2 = st.columns(2)
-    with row0_col1:
-        lbl, box = st.columns([2, 1])
-        with lbl:
-            st.markdown('<span class="param-label">Select INTF data:</span>', unsafe_allow_html=True)
-        with box:
-            intf_data = st.selectbox(
-                "Select INTF data:",
-                ["Default", "QE"],
-                index=0,
-                key="intf_data",
-                help="Default: Using NIST Format Interference Database；QE: Using QE format to interference with the database",
-                label_visibility="collapsed"   
-            )
-    with row0_col2:
-        st.write("")   # 右边空着，让整体对齐
+    col1, col2 = st.columns([2, 2])
+    with col1:
+        intf_data = st.selectbox(
+            "Select INTF data:",
+            ["Default", "QE"],
+            index=0,
+            key="intf_data",
+            help="Default: Using NIST Format Interference Database；QE: Using QE format to interference with the database"
+        )
+    with col2:
+        st.write("")  # 占位对齐
 
+    st.markdown('<div class="param-row">', unsafe_allow_html=True)
 # 第 1 行：M/z tolerance（左） & RT offset（右）
-    row1_left, row1_right, row1_blank = st.columns([1, 1, 1], gap="small")
+    row1_blank1, row1_left, row1_right, row1_blank2 = st.columns([1, 1, 1, 1], gap="small")
+    with row1_blank1:
+        st.write("")   # 右边空着，让整体对齐
     with row1_left:
         col_label, col_input = st.columns([1, 1], gap="small")
         with col_label:
@@ -648,11 +645,13 @@ with st.container():
                 key="rt_offset",
                 label_visibility="collapsed"
             )
-    with row1_blank:
+    with row1_blank2:
         st.write("")   # 右边空着，让整体对齐
         
 # 第 2 行：RT tolerance（左） & Specificity weight（右）
-    row2_left, row2_right, row2_blank = st.columns([1, 1, 1], gap="small")
+    row2_blank1, row2_left, row2_right, row2_blank2 = st.columns([1, 1, 1, 1], gap="small")
+    with row2_blank1:
+        st.write("")   # 右边空着，让整体对齐
     with row2_left:
         col_label, col_input = st.columns([1, 1], gap="small")
         with col_label:
@@ -679,7 +678,7 @@ with st.container():
                 key="specificity_weight",
                 label_visibility="collapsed"
             )
-    with row2_blank:
+    with row2_blank2:
         st.write("")   # 右边空着，让整体对齐
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -799,6 +798,7 @@ if st.session_state.calculation_complete:
     st.success(f"Calculation complete ✅ | Successfully processed: {success_count}| Overall processing: {len(result_df)}")
 else:
     st.warning("No results generated. Please check your input data or parameter configuration！")
+
 
 
 
