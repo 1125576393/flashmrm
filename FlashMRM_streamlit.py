@@ -597,7 +597,19 @@ if st.session_state.uploaded_data:
             if len(ud['data']) > 10:
                 st.write(f"... totle{len(ud['data'])}valid records")
 
-# 参数设置部分
+# ---------- 全局 CSS：隐藏“假 selectbox”的输入部分，只保留 label + 问号 ----------
+st.markdown("""
+<style>
+.fake-label [data-testid="stSelectbox"] > div:nth-child(2) {
+    display: none !important;  /* 隐藏掉下拉输入部分，只保留标题和问号 */
+}
+.param-label-container {
+    margin-bottom: 0.25rem;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# 参数设置标题
 st.markdown('<div class="section-header">Parameter setting</div>', unsafe_allow_html=True)
 with st.container():
     # 第一行参数：数据库选择
@@ -608,18 +620,31 @@ with st.container():
             ["Default", "QE"],
             index=0,
             key="intf_data",
-            help="Default: Using NIST Format Interference Database；QE: Using QE format to interference with the database"
+            help="Default: Using NIST Format Interference Database; QE: Using QE format to interference with the database"
         )
     with col2:
         st.write("")  # 占位对齐
 
-     # ===== 数值参数：做成 2 x 2 的小方框布局 =====
-    st.markdown('<div class="param-row">', unsafe_allow_html=True)
+    # ===== 数值参数：做成 2 x 2 的小方框布局 =====
     row1_col1, row1_col2 = st.columns(2)
+
+    # ---------- M/z tolerance ----------
     with row1_col1:
         lbl, box = st.columns([2, 1])
+
+        # 左列：假 label（用 selectbox 只显示标题+问号）
         with lbl:
-            st.markdown('<span class="param-label">M/z tolerance:</span>', unsafe_allow_html=True)
+            st.markdown('<div class="param-label-container fake-label">', unsafe_allow_html=True)
+            _ = st.selectbox(
+                "M/z tolerance",
+                options=[" "],  # 只有一个空选项，反正我们要把输入部分隐藏
+                index=0,
+                key="mz_tol_label",
+                help="Mass-to-charge ratio matching tolerance, default 0.7"
+            )
+            st.markdown('</div>', unsafe_allow_html=True)
+
+        # 右列：真正的数值输入框（label 折叠，只显示输入框）
         with box:
             mz_tolerance = st.number_input(
                 "M/z tolerance:",
@@ -627,15 +652,25 @@ with st.container():
                 max_value=10.0,
                 value=0.7,
                 step=0.1,
-                help="Mass-to-charge ratio matching tolerance, default 0.7",
                 key="mz_tolerance",
                 label_visibility="collapsed"
             )
 
+    # ---------- RT offset ----------
     with row1_col2:
         lbl, box = st.columns([2, 1])
+
         with lbl:
-            st.markdown('<span class="param-label">RT offset:</span>', unsafe_allow_html=True)
+            st.markdown('<div class="param-label-container fake-label">', unsafe_allow_html=True)
+            _ = st.selectbox(
+                "RT offset",
+                options=[" "],
+                index=0,
+                key="rt_offset_label",
+                help="Retention time offset, default 0.0 minutes"
+            )
+            st.markdown('</div>', unsafe_allow_html=True)
+
         with box:
             rt_offset = st.number_input(
                 "RT offset:",
@@ -643,15 +678,28 @@ with st.container():
                 max_value=10.0,
                 value=0.0,
                 step=0.5,
-                help="Retention time offset, default 0.0 minutes",
                 key="rt_offset",
                 label_visibility="collapsed"
             )
+
+    # ===== 第二行 =====
     row2_col1, row2_col2 = st.columns(2)
+
+    # ---------- RT tolerance ----------
     with row2_col1:
         lbl, box = st.columns([2, 1])
+
         with lbl:
-            st.markdown('<span class="param-label">RT tolerance:</span>', unsafe_allow_html=True)
+            st.markdown('<div class="param-label-container fake-label">', unsafe_allow_html=True)
+            _ = st.selectbox(
+                "RT tolerance",
+                options=[" "],
+                index=0,
+                key="rt_tol_label",
+                help="Retention time matching tolerance, default 2.0 minutes"
+            )
+            st.markdown('</div>', unsafe_allow_html=True)
+
         with box:
             rt_tolerance = st.number_input(
                 "RT tolerance:",
@@ -659,15 +707,25 @@ with st.container():
                 max_value=10.0,
                 value=2.0,
                 step=0.1,
-                help="Retention time matching tolerance, default 2.0 minutes",
                 key="rt_tolerance",
                 label_visibility="collapsed"
             )
 
+    # ---------- Specificity weight ----------
     with row2_col2:
         lbl, box = st.columns([2, 1])
+
         with lbl:
-            st.markdown('<span class="param-label">Specificity weight:</span>', unsafe_allow_html=True)
+            st.markdown('<div class="param-label-container fake-label">', unsafe_allow_html=True)
+            _ = st.selectbox(
+                "Specificity weight",
+                options=[" "],
+                index=0,
+                key="spec_weight_label",
+                help="Specificity weight (0–1), default 0.2"
+            )
+            st.markdown('</div>', unsafe_allow_html=True)
+
         with box:
             specificity_weight = st.number_input(
                 "Specificity weight:",
@@ -675,12 +733,9 @@ with st.container():
                 max_value=1.0,
                 value=0.2,
                 step=0.05,
-                help="Specificity weight (0–1), default 0.2",
                 key="specificity_weight",
                 label_visibility="collapsed"
             )
-
-    st.markdown('</div>', unsafe_allow_html=True)  # param-row 结束
 
 
 # 计算区域：按钮 + 进度条
@@ -799,6 +854,7 @@ if st.session_state.calculation_complete:
     st.success(f"Calculation complete ✅ | Successfully processed: {success_count}| Overall processing: {len(result_df)}")
 else:
     st.warning("No results generated. Please check your input data or parameter configuration！")
+
 
 
 
