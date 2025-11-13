@@ -469,13 +469,13 @@ st.markdown('<div class="section-header">Select Input mode</div>', unsafe_allow_
 col_a, col_b = st.columns([1, 3], gap="small")
 
 with col_a:
-     st.markdown(
+    st.markdown(
         """
         <div style="display:flex; height:100%; align-items:center; justify-content:flex-end; padding-right:8px;">
         """,
         unsafe_allow_html=True
     )
-     selected_mode = st.radio(
+    selected_mode = st.radio(
         "Select Input mode:",
         ["Input InChIKey", "Batch mode"],
         index=0 if st.session_state.get("input_mode", "Input InChIKey") == "Input InChIKey" else 1,
@@ -485,13 +485,13 @@ with col_a:
     st.markdown("</div>", unsafe_allow_html=True)
 
 with col_b:
-     st.markdown(
+    st.markdown(
         """
         <div style="display:flex; flex-direction:column; gap:0.35rem; width:100%;">
         """,
         unsafe_allow_html=True
     )
-    
+
     if selected_mode == "Input InChIKey":
         inchikey_input = st.text_input(
             "Input InChIKey:",
@@ -522,18 +522,20 @@ with col_b:
             key="inchikey_input_disabled",
             disabled=True
         )
-        
+
         # 批量模式文件上传
         batch_input = st.file_uploader(
             "Batch mode:",
             type=['txt', 'csv'],
-            help="Drag and drop files here. Supported formats: CSV (including an \"InChIKey\" column) and TXT (one InChIKey per line). ",
+            help='Drag and drop files here. Supported formats: CSV (including an "InChIKey" column) and TXT (one InChIKey per line).',
             label_visibility="collapsed",
             key="batch_input_active"
         )
         if batch_input is not None:
             st.session_state.batch_file = batch_input
-     st.markdown("</div>", unsafe_allow_html=True)  # 右侧容器结束
+
+    st.markdown("</div>", unsafe_allow_html=True)  # 右侧容器结束
+
 
 # 更新输入模式
 if selected_mode != st.session_state.input_mode:
@@ -754,6 +756,7 @@ if st.session_state.calculation_complete:
     st.success(f"Calculation complete ✅ | Successfully processed: {success_count}| Overall processing: {len(result_df)}")
 else:
     st.warning("No results generated. Please check your input data or parameter configuration！")
+
 
 
 
