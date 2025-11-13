@@ -94,7 +94,7 @@ st.markdown("""
         max-width: 130px;           /* 输入框宽度，自己可以调 */
     }
     div.param-row div[data-testid="stNumberInput"] input {
-        text-align: center;         /* 数值居中显示，类似你第一张图 */
+        text-align: center;        
     }
     /* 隐藏 + / - 按钮，让它像纯输入框 */
     div.param-row div[data-testid="stNumberInput"] button {
@@ -799,6 +799,7 @@ if st.session_state.calculation_complete:
     st.success(f"Calculation complete ✅ | Successfully processed: {success_count}| Overall processing: {len(result_df)}")
 else:
     st.warning("No results generated. Please check your input data or parameter configuration！")
+
 
 
 
