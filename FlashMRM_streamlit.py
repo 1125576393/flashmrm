@@ -82,12 +82,16 @@ st.markdown("""
         flex-grow: 1;
     }
 
-        /* 参数区：让 number_input 变成短小的“按钮”样式 */
+    /* 参数区：让 number_input 变成短小的“按钮”样式 */
     .param-label {
         font-weight: bold;
         font-size: 18px;
         margin-right: 8px;
         white-space: nowrap;
+    }
+    /* 参数区里 selectbox 的宽度也变短 */
+    div.param-row div[data-testid="stSelectbox"] > div:first-child {
+        max-width: 130px;   /* 跟 number_input 一样宽，自己可调 */
     }
     /* 只控制参数区容器里的 number_input 宽度 */
     div.param-row div[data-testid="stNumberInput"] > div:first-child {
@@ -600,18 +604,27 @@ if st.session_state.uploaded_data:
 # 参数设置部分
 st.markdown('<div class="section-header">Parameter setting</div>', unsafe_allow_html=True)
 with st.container():
-    # 第一行参数：数据库选择
-    col1, col2 = st.columns([2, 2])
-    with col1:
-        intf_data = st.selectbox(
-            "Select INTF data:",
-            ["Default", "QE"],
-            index=0,
-            key="intf_data",
-            help="Default: Using NIST Format Interference Database；QE: Using QE format to interference with the database"
-        )
-    with col2:
-        st.write("")  # 占位对齐
+    st.markdown('<div class="param-row">', unsafe_allow_html=True)
+
+    # ===== 第 0 行：Select INTF data（左文字 + 右短下拉框） =====
+    row0_col1, row0_col2 = st.columns(2)
+
+    with row0_col1:
+        lbl, box = st.columns([2, 1])
+        with lbl:
+            st.markdown('<span class="param-label">Select INTF data:</span>', unsafe_allow_html=True)
+        with box:
+            intf_data = st.selectbox(
+                "Select INTF data:",
+                ["Default", "QE"],
+                index=0,
+                key="intf_data",
+                help="Default: Using NIST Format Interference Database；QE: Using QE format to interference with the database",
+                label_visibility="collapsed"   
+            )
+
+    with row0_col2:
+        st.write("")   # 右边空着，让整体对齐
 
      # ===== 数值参数：做成 2 x 2 的小方框布局 =====
     st.markdown('<div class="param-row">', unsafe_allow_html=True)
@@ -798,6 +811,7 @@ if st.session_state.calculation_complete:
     st.success(f"Calculation complete ✅ | Successfully processed: {success_count}| Overall processing: {len(result_df)}")
 else:
     st.warning("No results generated. Please check your input data or parameter configuration！")
+
 
 
 
