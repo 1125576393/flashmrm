@@ -614,7 +614,7 @@ with st.container():
     with col1:
         col_lable1, col_input1 = st.columns([1, 1],gap="small")
         with col_lable1:
-            st.markdown('<span class="param-label1"Select INTF data</span>', unsafe_allow_html=True)
+            st.markdown('<span class="param-label1">Select INTF data</span>', unsafe_allow_html=True)
         with col_input1:
             intf_data = st.selectbox(
                 "Select INTF data:",
@@ -622,6 +622,7 @@ with st.container():
                 index=0,
                 key="intf_data",
                 help="Default: Using NIST Format Interference Database；QE: Using QE format to interference with the database"
+                lable_visibility="collapsed"
             )
     with col2:
         st.write("")  # 占位对齐
@@ -810,6 +811,7 @@ if st.session_state.calculation_complete:
     st.success(f"Calculation complete ✅ | Successfully processed: {success_count}| Overall processing: {len(result_df)}")
 else:
     st.warning("No results generated. Please check your input data or parameter configuration！")
+
 
 
 
