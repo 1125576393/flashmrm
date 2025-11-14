@@ -603,7 +603,7 @@ st.markdown('<div class="section-header">Parameter setting</div>', unsafe_allow_
 with st.container():
 # 第 0 行：Select INTF data
     col1, col2 = st.columns([1, 3])
-    with col1:s
+    with col1:
         intf_data = st.selectbox(
             "Select INTF data:",
             ["Default", "QE"],
@@ -798,6 +798,7 @@ if st.session_state.calculation_complete:
     st.success(f"Calculation complete ✅ | Successfully processed: {success_count}| Overall processing: {len(result_df)}")
 else:
     st.warning("No results generated. Please check your input data or parameter configuration！")
+
 
 
 
