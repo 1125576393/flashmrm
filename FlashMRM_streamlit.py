@@ -4,7 +4,6 @@ import time
 from FlashMRM import Config, MRMOptimizer
 import os
 
-# 页面配置
 st.set_page_config(
     page_title="FlashMRM",
     page_icon="786a50646609813e89cc2017082525a3.png",
@@ -165,17 +164,13 @@ def process_uploaded_data():
     """处理上传的数据"""
     try:
         if st.session_state.input_mode == "Input InChIKey":
-            # 处理单个InChIKey
             inchikey = st.session_state.inchikey_value.strip()
             if not inchikey:
                 st.session_state.upload_status = ("error", "Please enter a valid InChIKey！")
                 return False
-            
-            # InChIKey格式简单验证（标准格式含2个短横线）
             if inchikey.count('-') != 2:
                 st.session_state.upload_status = ("error", "InChIKey format is invalid! Standard format example: KXRPCFINVWWFHQ-UHFFFAOYSA-N")
                 return False
-            
             st.session_state.uploaded_data = {
                 "type": "single_inchikey",
                 "data": inchikey,
@@ -184,23 +179,18 @@ def process_uploaded_data():
             st.session_state.upload_status = ("success", f"Successfully uploaded InChIKey: {inchikey}")
             return True
             
-        else:  # Batch mode
-            # 处理批量文件
+        else: 
             batch_file = st.session_state.batch_file
             if batch_file is None:
                 st.session_state.upload_status = ("error", "Please upload the file!")
                 return False
-            
-            # 根据文件类型处理
             try:
                 if batch_file.name.endswith('.csv'):
                     df = pd.read_csv(batch_file)
-                    # 验证CSV是否包含InChIKey列
                     if "InChIKey" not in df.columns:
                         st.session_state.upload_status = ("error", "The CSV file must contain an \"InChIKey\" column!")
                         return False
                 elif batch_file.name.endswith('.txt'):
-                    # 假设txt文件每行一个InChIKey
                     content = batch_file.getvalue().decode('utf-8')
                     inchikeys = [line.strip() for line in content.split('\n') if line.strip()]
                     df = pd.DataFrame({"InChIKey": inchikeys})
@@ -210,8 +200,7 @@ def process_uploaded_data():
             except Exception as e:
                 st.session_state.upload_status = ("error", f"File parsing failed: {str(e)}")
                 return False
-            
-            # 过滤无效InChIKey（格式验证）
+                
             valid_inchikeys = [ik for ik in df["InChIKey"].dropna().unique() if ik.count('-') == 2]
             if len(valid_inchikeys) == 0:
                 st.session_state.upload_status = ("error", "No valid InChIKey found in the file！")
@@ -236,7 +225,6 @@ def process_uploaded_data():
         return False
 
 def run_flashmrm_calculation():
-    """运行 FlashMRM.py 的真实后端计算（支持批量处理）"""
     try:
         st.session_state.calculation_in_progress = True
         st.session_state.calculation_complete = False
@@ -520,7 +508,6 @@ with col_b:
         """,
         unsafe_allow_html=True
     )
-
     if selected_mode == "Input InChIKey":
         inchikey_input = st.text_input(
             "Input InChIKey:",
@@ -531,8 +518,6 @@ with col_b:
         )
         if inchikey_input:
             st.session_state.inchikey_value = inchikey_input
-
-        # 禁用的批量上传框（占位）
         st.file_uploader(
             "Batch mode:",
             type=['txt', 'csv'],
@@ -542,7 +527,6 @@ with col_b:
             help="Disable batch uploads in single-file mode"
         )
     else:
-        # 禁用的单个输入框（占位）
         st.text_input(
             "Input InChIKey:",
             value="",
@@ -551,8 +535,6 @@ with col_b:
             key="inchikey_input_disabled",
             disabled=True
         )
-
-        # 批量模式文件上传
         batch_input = st.file_uploader(
             "Batch mode:",
             type=['txt', 'csv'],
@@ -562,7 +544,6 @@ with col_b:
         )
         if batch_input is not None:
             st.session_state.batch_file = batch_input
-
     st.markdown("</div>", unsafe_allow_html=True)  
 
 # 更新输入模式
@@ -579,7 +560,7 @@ upload_clicked = st.button(
     key="upload_button",
     disabled=st.session_state.calculation_in_progress
 )
-# 处理Upload按钮点击
+
 if upload_clicked:
     process_uploaded_data()
 
@@ -771,7 +752,6 @@ if st.session_state.calculation_complete:
             n_missing = 5 - len(df)
             zero_row = {c: 0 for c in IONPAIR_COLUMNS}
             df = pd.concat([df, pd.DataFrame([zero_row]*n_missing)], ignore_index=True)
-
         return df
 
     # —— 选择要查看的化合物（默认第1个，满足“以Calculation results表格中第一个化合物为默认”） ——
@@ -786,7 +766,7 @@ if st.session_state.calculation_complete:
     )
     sel_row = result_df[result_df['_display_key'] == selected_key].iloc[0]
     top5_df = _normalize_top5_rows(sel_row.get('best5_combinations'))
-
+    
     st.dataframe(top5_df, use_container_width=True, hide_index=True)
 
     st.download_button(
@@ -809,36 +789,6 @@ if st.session_state.calculation_complete:
     st.success(f"Calculation complete ✅ | Successfully processed: {success_count}| Overall processing: {len(result_df)}")
 else:
     st.warning("No results generated. Please check your input data or parameter configuration！")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
