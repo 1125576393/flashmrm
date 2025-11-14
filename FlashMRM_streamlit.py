@@ -617,7 +617,6 @@ with st.container():
             st.markdown('<span class="param-label1">Select INTF data</span>', unsafe_allow_html=True)
         with col_input1:
             intf_data = st.selectbox(
-                "Select INTF data:",
                 ["Default", "QE"],
                 index=0,
                 key="intf_data"
@@ -809,6 +808,7 @@ if st.session_state.calculation_complete:
     st.success(f"Calculation complete ✅ | Successfully processed: {success_count}| Overall processing: {len(result_df)}")
 else:
     st.warning("No results generated. Please check your input data or parameter configuration！")
+
 
 
 
