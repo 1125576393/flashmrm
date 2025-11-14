@@ -610,25 +610,26 @@ if st.session_state.uploaded_data:
 st.markdown('<div class="section-header">Parameter setting</div>', unsafe_allow_html=True)
 with st.container():
 # 第 0 行：Select INTF data
-    col1, col2 = st.columns([1, 3],gap="small")
+    col1, col2 = st.columns([1, 2],gap="small")
     with col1:
         col_lable1, col_input1 = st.columns([1, 1],gap="small")
         with col_lable1:
             st.markdown('<span class="param-label1">Select INTF data</span>', unsafe_allow_html=True)
         with col_input1:
             intf_data = st.selectbox(
+                "Select INTF data",
                 ["Default", "QE"],
                 index=0,
-                key="intf_data"
+                key="intf_data",
+                label_visibility="collapsed"
             )
     with col2:
-        st.write("")  # 占位对齐
-
+        st.write("") 
     st.markdown('<div class="param-row">', unsafe_allow_html=True)
 # 第 1 行：M/z tolerance（左） & RT offset（右）
     row1_blank1, row1_left, row1_right, row1_blank2 = st.columns([1, 3, 3, 1], gap="small")
     with row1_blank1:
-        st.write("")   # 右边空着，让整体对齐
+        st.write("") 
     with row1_left:
         col_label, col_input = st.columns([1, 1], gap="small")
         with col_label:
@@ -656,12 +657,12 @@ with st.container():
                 label_visibility="collapsed"
             )
     with row1_blank2:
-        st.write("")   # 右边空着，让整体对齐
+        st.write("") 
         
 # 第 2 行：RT tolerance（左） & Specificity weight（右）
     row2_blank1, row2_left, row2_right, row2_blank2 = st.columns([1, 3, 3, 1], gap="small")
     with row2_blank1:
-        st.write("")   # 右边空着，让整体对齐
+        st.write("") 
     with row2_left:
         col_label, col_input = st.columns([1, 1], gap="small")
         with col_label:
@@ -689,7 +690,7 @@ with st.container():
                 label_visibility="collapsed"
             )
     with row2_blank2:
-        st.write("")   # 右边空着，让整体对齐
+        st.write("")  
     st.markdown('</div>', unsafe_allow_html=True)
 
 # 计算区域：按钮 + 进度条
@@ -808,6 +809,7 @@ if st.session_state.calculation_complete:
     st.success(f"Calculation complete ✅ | Successfully processed: {success_count}| Overall processing: {len(result_df)}")
 else:
     st.warning("No results generated. Please check your input data or parameter configuration！")
+
 
 
 
