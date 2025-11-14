@@ -81,7 +81,15 @@ st.markdown("""
     .progress-container {
         flex-grow: 1;
     }
-
+    /* 参数区：让 number_input 变成短小的“按钮”样式 */
+    .param-label1 {
+        font-weight: bold;
+        font-size: 18px;
+        margin-right: 4px;
+        white-space: nowrap;
+        text-align: left;    
+        display: block;
+    
     /* 参数区：让 number_input 变成短小的“按钮”样式 */
     .param-label {
         font-weight: bold;
@@ -602,15 +610,19 @@ if st.session_state.uploaded_data:
 st.markdown('<div class="section-header">Parameter setting</div>', unsafe_allow_html=True)
 with st.container():
 # 第 0 行：Select INTF data
-    col1, col2 = st.columns([1, 3])
+    col1, col2 = st.columns([1, 3],gao="small")
     with col1:
-        intf_data = st.selectbox(
-            "Select INTF data:",
-            ["Default", "QE"],
-            index=0,
-            key="intf_data",
-            help="Default: Using NIST Format Interference Database；QE: Using QE format to interference with the database"
-        )
+        col__lable1, col_input1 = st.columns([1, 1],gap="small")
+        with col_lable1:
+            st.markdown('<span class="param-label1"Select INTF data</span>', unsafe_allow_html=True)
+        with col_input1:
+            intf_data = st.selectbox(
+                "Select INTF data:",
+                ["Default", "QE"],
+                index=0,
+                key="intf_data",
+                help="Default: Using NIST Format Interference Database；QE: Using QE format to interference with the database"
+            )
     with col2:
         st.write("")  # 占位对齐
 
@@ -798,6 +810,7 @@ if st.session_state.calculation_complete:
     st.success(f"Calculation complete ✅ | Successfully processed: {success_count}| Overall processing: {len(result_df)}")
 else:
     st.warning("No results generated. Please check your input data or parameter configuration！")
+
 
 
 
