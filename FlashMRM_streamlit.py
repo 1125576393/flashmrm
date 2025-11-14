@@ -620,9 +620,7 @@ with st.container():
                 "Select INTF data:",
                 ["Default", "QE"],
                 index=0,
-                key="intf_data",
-                help="Default: Using NIST Format Interference Database；QE: Using QE format to interference with the database",
-                lable_visibility="collapsed"
+                key="intf_data"
             )
     with col2:
         st.write("")  # 占位对齐
@@ -811,6 +809,7 @@ if st.session_state.calculation_complete:
     st.success(f"Calculation complete ✅ | Successfully processed: {success_count}| Overall processing: {len(result_df)}")
 else:
     st.warning("No results generated. Please check your input data or parameter configuration！")
+
 
 
 
