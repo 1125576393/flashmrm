@@ -80,44 +80,6 @@ st.markdown("""
     .progress-container {
         flex-grow: 1;
     }
-    /* 参数区：让 number_input 变成短小的“按钮”样式 */
-    .param-label1 {
-        font-weight: bold;
-        font-size: 18px;
-        margin-right: 4px;
-        white-space: nowrap;
-        text-align: left;    
-        display: block;
-    
-    /* 参数区：让 number_input 变成短小的“按钮”样式 */
-    .param-label {
-        font-weight: bold;
-        font-size: 18px;
-        margin-right: 4px;
-        white-space: nowrap;
-        text-align: right;      /* 关键：右对齐 */
-        display: block;
-    }
-     /* 参数区内部列的左右内边距缩小一点，让中间距离更小（可微调） */
-    .param-row .stColumn {
-        padding-right: 0.25rem;
-        padding-left: 0.25rem;
-    }
-    /* 参数区里 selectbox 的宽度也变短 */
-    div.param-row div[data-testid="stSelectbox"] > div:first-child {
-        max-width: 130px;   /* 跟 number_input 一样宽，自己可调 */
-    }
-    /* 只控制参数区容器里的 number_input 宽度 */
-    div.param-row div[data-testid="stNumberInput"] > div:first-child {
-        max-width: 130px;           /* 输入框宽度，自己可以调 */
-    }
-    div.param-row div[data-testid="stNumberInput"] input {
-        text-align: center;        
-    }
-    /* 隐藏 + / - 按钮，让它像纯输入框 */
-    div.param-row div[data-testid="stNumberInput"] button {
-        display: none;
-    }
     
     /* 新增：为主要区块添加额外间距 */
     .stRadio {
@@ -587,92 +549,67 @@ if st.session_state.uploaded_data:
             if len(ud['data']) > 10:
                 st.write(f"... totle{len(ud['data'])}valid records")
 
-#参数设置部分
+# 参数设置部分
 st.markdown('<div class="section-header">Parameter setting</div>', unsafe_allow_html=True)
 with st.container():
-# 第 0 行：Select INTF data
-    col1, col2 = st.columns([1, 2],gap="small")
+    # 第一行参数：数据库选择
+    col1, col2 = st.columns([2, 2])
     with col1:
-        col_lable1, col_input1 = st.columns([1, 1],gap="small")
-        with col_lable1:
-            st.markdown('<span class="param-label1">Select INTF data</span>', unsafe_allow_html=True)
-        with col_input1:
-            intf_data = st.selectbox(
-                "Select INTF data",
-                ["Default", "QE"],
-                index=0,
-                key="intf_data",
-                label_visibility="collapsed"
-            )
+        intf_data = st.selectbox(
+            "Select INTF data:",
+            ["Default", "QE"],
+            index=0,
+            key="intf_data",
+            help="Default: Using NIST Format Interference Database；QE: Using QE format to interference with the database"
+        )
     with col2:
-        st.write("") 
-    st.markdown('<div class="param-row">', unsafe_allow_html=True)
-# 第 1 行：M/z tolerance（左） & RT offset（右）
-    row1_blank1, row1_left, row1_right, row1_blank2 = st.columns([1, 3, 3, 1], gap="small")
-    with row1_blank1:
-        st.write("") 
-    with row1_left:
-        col_label, col_input = st.columns([1, 1], gap="small")
-        with col_label:
-            st.markdown('<span class="param-label">M/z tolerance:</span>', unsafe_allow_html=True)
-        with col_input:
-            mz_tolerance = st.number_input(
-                "M/z tolerance:",
-                min_value=0.0, max_value=10.0,
-                value=0.7, step=0.1,
-                help="Mass/charge tolerance",
-                key="mz_tolerance",
-                label_visibility="collapsed"
-            )
-    with row1_right:
-        col_label, col_input = st.columns([1, 1], gap="small")
-        with col_label:
-            st.markdown('<span class="param-label">RT offset:</span>', unsafe_allow_html=True)
-        with col_input:
-            rt_offset = st.number_input(
-                "RT offset:",
-                min_value=-10.0, max_value=10.0,
-                value=0.0, step=0.1,
-                help="Retention time offset",
-                key="rt_offset",
-                label_visibility="collapsed"
-            )
-    with row1_blank2:
-        st.write("") 
-        
-# 第 2 行：RT tolerance（左） & Specificity weight（右）
-    row2_blank1, row2_left, row2_right, row2_blank2 = st.columns([1, 3, 3, 1], gap="small")
-    with row2_blank1:
-        st.write("") 
-    with row2_left:
-        col_label, col_input = st.columns([1, 1], gap="small")
-        with col_label:
-            st.markdown('<span class="param-label">RT tolerance:</span>', unsafe_allow_html=True)
-        with col_input:
-            rt_tolerance = st.number_input(
-                "RT tolerance:",
-                min_value=0.0, max_value=10.0,
-                value=2.0, step=0.1,
-                help="Retention time matching tolerance",
-                key="rt_tolerance",
-                label_visibility="collapsed"
-            )
-    with row2_right:
-        col_label, col_input = st.columns([1, 1], gap="small")
-        with col_label:
-            st.markdown('<span class="param-label">Specificity weight:</span>', unsafe_allow_html=True)
-        with col_input:
-            specificity_weight = st.number_input(
-                "Specificity weight:",
-                min_value=0.0, max_value=1.0,
-                value=0.2, step=0.05,
-                help="Specificity weight",
-                key="specificity_weight",
-                label_visibility="collapsed"
-            )
-    with row2_blank2:
-        st.write("")  
-    st.markdown('</div>', unsafe_allow_html=True)
+        st.write("")  # 占位对齐
+
+    # 第二行参数：M/z容差 + RT偏移
+    col4, col5 = st.columns([1, 1])
+    with col4:
+        mz_tolerance = st.number_input(
+            "M/z tolerance:",
+            min_value=0.0,
+            max_value=10.0,
+            value=0.7,
+            step=0.1,
+            help="Mass-to-charge ratio matching tolerance, default 0.7",
+            key="mz_tolerance"
+        )
+    with col5:
+        rt_offset = st.number_input(
+            "RT offset:",
+            min_value=-10.0,
+            max_value=10.0,
+            value=0.0,
+            step=0.5,
+            help="Retention time offset, default 0.0 minutes",
+            key="rt_offset"
+        )
+
+    # 第三行参数：RT容差 + 特异性权重
+    col6, col7 = st.columns([1, 1])
+    with col6:
+        rt_tolerance = st.number_input(
+            "RT tolerance:",
+            min_value=0.0,
+            max_value=10.0,
+            value=2.0,
+            step=0.1,
+            help="Retention time matching tolerance, default 2.0 minutes",
+            key="rt_tolerance"
+        )
+    with col7:
+        specificity_weight = st.number_input(
+            "Specificity weight:",
+            min_value=0.0,
+            max_value=1.0,
+            value=0.2,
+            step=0.05,
+            help="Specificity weight (0–1), default 0.2",
+            key="specificity_weight"
+        )
 
 # 计算区域：按钮 + 进度条
 st.markdown('<div class="section-header">Calculate</div>', unsafe_allow_html=True)
@@ -789,6 +726,7 @@ if st.session_state.calculation_complete:
     st.success(f"Calculation complete ✅ | Successfully processed: {success_count}| Overall processing: {len(result_df)}")
 else:
     st.warning("No results generated. Please check your input data or parameter configuration！")
+
 
 
 
