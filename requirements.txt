@@ -7,24 +7,27 @@
 ################################################################################
 
 # 🧠 Core libraries
-streamlit>=1.30       # Streamlit app framework
-pandas>=2.0           # DataFrame handling
-numpy>=1.25           # Numerical computations
+streamlit>=1.30
+pandas>=2.0
+numpy>=1.25
 
 # 📊 Visualization
-altair>=5.0           # Charts for Streamlit
+altair>=5.0
 
 # 🧪 Mass spectrometry and data processing
-pyteomics>=4.7        # LC-MS / MS/MS data parsing
+pyteomics>=4.7
 
 # ⚙️ Utility tools
-tqdm>=4.66            # Progress bar for loops
-python-dateutil>=2.8  # Date and time utilities
-requests>=2.31        # HTTP requests (if needed)
+tqdm>=4.66
+python-dateutil>=2.8
+requests>=2.31
 
 ################################################################################
 # Optional: If you plan to add more visualization or Excel export features later,
 # you can also include:
-# openpyxl>=3.1       # Excel file support
-# matplotlib>=3.9     # Plotting (if used)
+# openpyxl>=3.1
+# matplotlib>=3.9
 ################################################################################
+
+# 🎨 UI 美化（用于自定义输入框颜色、按钮样式等）
+st-styled>=0.0.5
