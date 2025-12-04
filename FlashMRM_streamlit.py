@@ -443,7 +443,7 @@ You can download the demo dataset used for testing here:
     if demo_df is not None:
         st.dataframe(
             demo_df.head(2),
-            use_container_width=True,
+            width="stretch",
             hide_index=True
         )
     else:
@@ -526,7 +526,7 @@ with st.expander("Select Input mode"):
         up_bg = "#CCDAFF"
         upload_clicked = st_yled.button(
             "Upload",
-            use_container_width=True,
+            width="stretch",
             key="upload_button",
             background_color=up_bg,
             disabled=st.session_state.calculation_in_progress
@@ -553,7 +553,7 @@ if st.session_state.uploaded_data:
             st.write(f"Number of original records: {ud.get('original_count', 0)}")
             st.write(f"Valid InChIKey count: {ud['record_count']}")
             st.write("Valid InChIKey Preview:")
-            st.dataframe(ud['data'].head(10), use_container_width=False)  # 非必要宽度，用默认content
+            st.dataframe(ud['data'].head(10), width="content")  # 非必要宽度，用默认content
             if len(ud['data']) > 10:
                 st.write(f"... totle{len(ud['data'])}valid records")
 
@@ -710,7 +710,7 @@ if st.session_state.calculation_complete:
                 if hasattr(display_df[col], "dtype") and display_df[col].dtype.kind in "fc":
                     display_df[col] = display_df[col].round(1)
 
-        st.dataframe(display_df, use_container_width=False)
+        st.dataframe(display_df, width="content")
 
         csv_data = result_df[CALCULATION_COLUMNS].to_csv(index=False, encoding='utf-8').encode('utf-8')
         st.download_button(
@@ -774,7 +774,7 @@ if st.session_state.calculation_complete:
         "MSMS1": "MRM1",
         "MSMS2": "MRM2"
     })
-    st.dataframe(display_top5_df, use_container_width=True, hide_index=True)
+    st.dataframe(display_top5_df, width="stretch", hide_index=True)
 
     st.download_button(
         label="📥 Download Top-5 ion pairs (CSV)",
@@ -805,3 +805,4 @@ if st.session_state.calculation_complete:
 
 
     
+
